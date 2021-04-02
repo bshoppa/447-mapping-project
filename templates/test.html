@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Test Page</title>
+
+<h1>Hey, Hope you are doing well! &#128516</h1>
+{% endblock %}
+
+{% block body %}
+{{ name }}
+
+<a href="{{ url_for('index') }}"> Link to First Page</a>
+{% endblock %}
