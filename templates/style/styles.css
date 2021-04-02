@@ -13,11 +13,11 @@ h3{
 }
 
 li{
-    color: red;
+    color: rgb(252, 166, 166);
     font-size: 50px;
 }
 
 body {
-    background: firebrick;
+    background: rgb(194, 240, 240);
     text-align: center;
 }
