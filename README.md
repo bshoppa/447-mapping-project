@@ -1,5 +1,11 @@
 # 447-mapping-project
 
+to run, run this command:
+
+```sh
+./start.sh
+```
+
 to view the app while it's running
 
 go to
