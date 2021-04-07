@@ -42,41 +42,40 @@ return {
 /** L.geoJson(statesData, {style: style}).addTo(map); **/
 
 // load every prison
+console.log("test");
 fetch('/date',
 {"method": "POST", 'headers': {'Accept': 'application/json', 'Content-Type': 'application/json'}, "body" : JSON.stringify({})}
 ).then(res => res.json()).then(data => {
-console.log(data);
-for(var key in data){
-	var lva = data[key]
-	if(lva.Latitude != "NA" && Number(lva.Cases) > 0){
-		console.log(lva.Latitude, lva.Longitude);
-					var mycircle = L.circle([Number(lva.Latitude), Number(lva.Longitude)], {
-							color: '#0033FF',
-						fillOpacity: 0.5,
-						radius: 500
-					}).addTo(mymap).bindPopup(Number(lva.Cases).toString() + ' Cases');
+	for(var key in data){
+		var lva = data[key]
+		if(lva.Latitude != "NA" && Number(lva.Cases) > 0){
+			var mycircle = L.circle([Number(lva.Latitude), Number(lva.Longitude)], {
+					color: '#0033FF',
+				fillOpacity: 0.5,
+				radius: 500
+			}).addTo(mymap).bindPopup(Number(lva.Cases).toString() + ' Cases');
 
-					if(Number(lva.Cases) > 1000){
-							mycircle = L.circle([Number(lva.Latitude), Number(lva.Longitude)], {
-							color: '#FF0033',
-						fillOpacity: 0.5,
-						radius: 500
-						}).addTo(mymap).bindPopup(Number(lva.Cases).toString() + ' Cases');
-					}
-					/**
-		var myIcon = L.icon({
-			iconUrl: "public/icon1.png"
-		});
-
-		if(Number(lva.Cases) > 1000){
-			myIcon = L.icon({
-				iconUrl: "public/icon2.png"
+			if(lva.Cases != "NA"){
+				mycircle = L.circle([Number(lva.Latitude), Number(lva.Longitude)], {
+					color: getColor(lva.Cases),
+					fillOpacity: 0.5,
+					radius: 500
+				}).addTo(mymap).bindPopup(Number(lva.Cases).toString() + ' Cases');
+			}
+			/**
+			var myIcon = L.icon({
+				iconUrl: "public/icon1.png"
 			});
 
+			if(Number(lva.Cases) > 1000){
+				myIcon = L.icon({
+					iconUrl: "public/icon2.png"
+				});
+
+			}
+			**/
+			console.log(Number(lva.Latitude));
+			/**var marker = L.marker([Number(lva.Latitude), Number(lva.Longitude)], {icon: myIcon}).addTo(mymap); **/
 		}
-					**/
-		console.log(Number(lva.Latitude));
-		/**var marker = L.marker([Number(lva.Latitude), Number(lva.Longitude)], {icon: myIcon}).addTo(mymap); **/
 	}
-}
 });
