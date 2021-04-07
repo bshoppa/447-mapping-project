@@ -42,7 +42,6 @@ return {
 /** L.geoJson(statesData, {style: style}).addTo(map); **/
 
 // load every prison
-console.log("test");
 fetch('/date',
 {"method": "POST", 'headers': {'Accept': 'application/json', 'Content-Type': 'application/json'}, "body" : JSON.stringify({})}
 ).then(res => res.json()).then(data => {
@@ -74,7 +73,6 @@ fetch('/date',
 
 			}
 			**/
-			console.log(Number(lva.Latitude));
 			/**var marker = L.marker([Number(lva.Latitude), Number(lva.Longitude)], {icon: myIcon}).addTo(mymap); **/
 		}
 	}
