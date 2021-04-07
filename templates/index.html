@@ -27,17 +27,12 @@
 		zoomOffset: -1
 	}).addTo(mymap);
 
-	/** onClick Listener, displays message when user clicks on the map**/
-/**	var popup = L.popup();
+	/** onClick Listener, zooms in on map when user clicks on location**/
 	function onMapClick(e) {
-		popup
-			.setLatLng(e.latlng)
-			.setContent("Current Covid-19 Cases at this location is 579")
-			.openOn(mymap);
 			 mymap.zoomIn();
 	}
 	mymap.on('click', onMapClick);
-**/
+
 /** Color Settings that will coordinate with Covid Cases Density **/
 function getColor(d) {
     return d > 1000 ? '#800026' :
