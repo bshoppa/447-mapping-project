@@ -50,13 +50,14 @@ def index():
     return render_template("index.html")
 
     headline = "Welcome Newcomer!"
+    '''
     if request.method == "POST":
         if len(notes) > 0:
             del notes[0]
         note = request.form.get("note")
         notes.append(note)
-        return redirect(f'\{notes[0]}')
-
+        return redirect(f'\{notes[0]}') # this line returns an error
+'''
     # Way to include the dates into the html in a selectable way
     dates = [101021,101121,101221,101321,101421,101521]
     # pass in headline variable to html
