@@ -6,6 +6,8 @@ import csv
 
 app = Flask(__name__)
 
+
+# initialize data
 notes = []
 
 facilities = {}
@@ -20,6 +22,9 @@ with open("CA-historical-data.csv") as csvfile:
             'Cases': row['Residents.Confirmed']
         }
 
+
+
+# set up website urls
 @app.route('/date', methods=['POST','GET'])
 def get_prison_data():
     if request.method == 'POST':
