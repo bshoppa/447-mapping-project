@@ -1,6 +1,7 @@
 from flask import Flask
 from flask import render_template, redirect, request, send_file, send_from_directory
 
+import os
 import datetime
 import csv
 
@@ -30,12 +31,21 @@ def get_prison_data(date):
     for facility in facilities.items():
         if facility[1].get("Date") <= date:
             data.append(facility)
-         
+
 
     if request.method == 'POST':
         return "Oops all berries, should not be here!"
     else:
         return render_template("dates.html", dates=data)
+
+counties = []
+
+for file in os.listdir('')
+
+@app.route('/counties')
+def send_counties():
+    return counties
+
 
 @app.route('/public/<path:path>')
 def send_public(path):
@@ -75,4 +85,3 @@ def index():
 # Remove debug when fully deployed
 if __name__ == "__main__":
     app.run(debug=True, use_reloader=True)
-

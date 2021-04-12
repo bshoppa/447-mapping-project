@@ -41,6 +41,14 @@ return {
 
 /** L.geoJson(statesData, {style: style}).addTo(map); **/
 
+fetch('/counties',
+{"method": "POST", 'headers': {'Accept': 'application/json', 'Content-Type': 'application/json'}, "body" : JSON.stringify({})}
+).then(res => res.json()).then(data => {
+	for(var key in data){
+		
+	}
+}
+
 // load every prison
 fetch('/date',
 {"method": "POST", 'headers': {'Accept': 'application/json', 'Content-Type': 'application/json'}, "body" : JSON.stringify({})}
