@@ -3,7 +3,7 @@ from flask import render_template, redirect, request, send_file, send_from_direc
 
 import os
 import json
-import datetime
+from datetime import datetime
 import csv
 import string
 
@@ -19,7 +19,7 @@ counties = {}
 
 for filename in os.listdir('countypolygons'):
     county_name = filename[:-9]
-    print(county_name)
+    #print(county_name)
     counties[county_name] = [json.load(open('countypolygons/' + filename)), 0]
 
 with open("CA-historical-data.csv") as csvfile:
@@ -39,7 +39,7 @@ for key in facilities:
     if counties.get(facility['County']):
         counties[facility['County']][1] += int(facility['Cases'])
     else:
-        print(facility['County'], "not found")
+        #print(facility['County'], "not found")
         county_name = string.capwords(facility['County'].lower())
         try:
             if counties.get(county_name):
@@ -82,19 +82,35 @@ def index():
     if request.method == 'GET':
         return render_template("index.html")
 
+    # input for date
     if request.method == "POST":
+        curyear = datetime.now().year
         day = request.form.get("day")
         month = request.form.get('month')
         year = request.form.get('year')
-        #if(int(day) > 31 or int(day) < 0):
+
+        # error checking for date input
+        if(int(day) > 31 or int(day) < 0):
+            print("We day bad")
+            return redirect('/')
+        elif(int(year) > curyear):
+            print("We year bad")
+            return redirect('/')
+        elif(int(month) > 12 or int(month) < 0):
+            print("We month bad")
+            return redirect('/')
+
+        if(len(day) < 2):
+            day = '0' + day
+        elif(len(day) > 2):
+            day = day[-2:]
+        elif(len(month) > 2):
+            month = month[-2:]
+        elif(len(month) < 2):
+            month = '0' + month
 
         date = year + "-" + month + "-" + day
         return redirect(f'/date/{date}')
-
-    # Way to include the dates into the html in a selectable way
-    # dates = [101021,101121,101221,101321,101421,101521]
-    # pass in headline variable to html
-
 
 # Huge Security Violation
 # Remove debug when fully deployed
