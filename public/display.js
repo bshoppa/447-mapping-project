@@ -28,9 +28,14 @@ return d > 1000 ? '#800026' :
 }
 
 /** styling function for our GeoJSON layer so that its fillColor depends on our covid cases database **/
+
+counties_cases = {};
+
 function style(feature) {
+	console.log(feature);
+	console.log(feature.properties.name);
 return {
-	fillColor: getColor(feature.properties.density),
+	fillColor: getColor(counties_cases[feature.properties.name]),
 	weight: 2,
 	opacity: 1,
 	color: 'white',
@@ -45,9 +50,15 @@ fetch('/counties',
 {"method": "POST", 'headers': {'Accept': 'application/json', 'Content-Type': 'application/json'}, "body" : JSON.stringify({})}
 ).then(res => res.json()).then(data => {
 	for(var key in data){
-
+		geojsonFile = data[key][0];
+		console.log(geojsonFile);
+		console.log(geojsonFile.properties);
+		// geojsonFile.properties.density = data[key][1]
+		counties_cases[key] = data[key][1];
+		console.log(data[key][1]);
+		L.geoJSON(geojsonFile, {style: style}).addTo(mymap);
 	}
-}
+});
 
 // load every prison
 fetch('/date',
@@ -59,14 +70,14 @@ fetch('/date',
 			var mycircle = L.circle([Number(lva.Latitude), Number(lva.Longitude)], {
 					color: '#0033FF',
 				fillOpacity: 0.5,
-				radius: 500
+				radius: 5000
 			}).addTo(mymap).bindPopup(Number(lva.Cases).toString() + ' Cases');
 
 			if(lva.Cases != "NA"){
 				mycircle = L.circle([Number(lva.Latitude), Number(lva.Longitude)], {
 					color: getColor(lva.Cases),
 					fillOpacity: 0.5,
-					radius: 500
+					radius: 5000
 				}).addTo(mymap).bindPopup(Number(lva.Cases).toString() + ' Cases');
 			}
 			/**
