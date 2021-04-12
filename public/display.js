@@ -45,7 +45,7 @@ fetch('/counties',
 {"method": "POST", 'headers': {'Accept': 'application/json', 'Content-Type': 'application/json'}, "body" : JSON.stringify({})}
 ).then(res => res.json()).then(data => {
 	for(var key in data){
-		
+
 	}
 }
 
