@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>HTML Skeleton Page</title>
+
+        <!-- This is an example of where we can use scripts within the html -->
+    <script type="text/javascript">
+        function dummyFunction(){
+            alert( 'This is a dummy script :) ')
+        }
+        </script>
+{% endblock %}
+
+{% block body %}
+<h1>{{ headline }}</h1>
+    Area for the content of the webpage
+    <!-- Java Function Call -->
+    <p onclick="javascript:dummyFunction();">Click me!</p>
+
+    <div>
+        <input name="date" list="dates" placeholder="Covid-19 Date Selection">
+        <!-- List of Covid Data Example -->
+        <datalist id="dates">
+            {% for date in dates %}
+                <option value={{ date }}>
+            {% endfor %}
+        </datalist>
+    </div>
+
+    <form action="{{ url_for('index') }}" method="post">
+        <input type="text" name="note" placeholder="Dummy Button">
+        <button>Submit</button>
+    </form>
+
+    <a href="{{ url_for('test_page',name='Group10') }}">Link to second page</a>
+
+{% endblock %}
