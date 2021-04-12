@@ -1,8 +1,11 @@
 from flask import Flask
 from flask import render_template, redirect, request, send_file, send_from_directory
 
+import os
+import json
 import datetime
 import csv
+import string
 
 app = Flask(__name__)
 
@@ -12,6 +15,13 @@ notes = []
 
 facilities = {}
 
+counties = {}
+
+for filename in os.listdir('countypolygons'):
+    county_name = filename[:-9]
+    print(county_name)
+    counties[county_name] = [json.load(open('countypolygons/' + filename)), 0]
+
 with open("CA-historical-data.csv") as csvfile:
     reader = csv.DictReader(csvfile, skipinitialspace=True)
     for row in reader:
@@ -20,22 +30,36 @@ with open("CA-historical-data.csv") as csvfile:
             'Longitude': row['Longitude'],
             'Name': row['Name'],
             'Cases': row['Residents.Confirmed'],
-            'Date': row['Date']
+            'Date': row['Date'],
+            'County': row['County']
         }
 
-# set up website urls
-@app.route('/date/<date>', methods=['POST','GET'])
-def get_prison_data(date):
-    data = []
-    for facility in facilities.items():
-        if facility[1].get("Date") <= date:
-            data.append(facility)
-         
-
-    if request.method == 'POST':
-        return "Oops all berries, should not be here!"
+for key in facilities:
+    facility = facilities[key]
+    if counties.get(facility['County']):
+        counties[facility['County']][1] += int(facility['Cases'])
     else:
-        return render_template("dates.html", dates=data)
+        print(facility['County'], "not found")
+        county_name = string.capwords(facility['County'].lower())
+        try:
+            if counties.get(county_name):
+                counties[county_name][1] += int(facility['Cases'])
+        except (ValueError):
+            print("nothing happened!!!!")
+
+# set up website urls
+@app.route('/date', methods=['POST','GET'])
+def get_prison_data():
+    print("he")
+    if request.method == 'POST':
+        return facilities
+
+
+
+@app.route('/counties', methods=['POST','GET'])
+def send_counties():
+    return counties
+
 
 @app.route('/public/<path:path>')
 def send_public(path):
@@ -75,4 +99,3 @@ def index():
 # Remove debug when fully deployed
 if __name__ == "__main__":
     app.run(debug=True, use_reloader=True)
-
