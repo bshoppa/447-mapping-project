@@ -19,16 +19,23 @@ with open("CA-historical-data.csv") as csvfile:
             'Latitude': row['Latitude'],
             'Longitude': row['Longitude'],
             'Name': row['Name'],
-            'Cases': row['Residents.Confirmed']
+            'Cases': row['Residents.Confirmed'],
+            'Date': row['Date']
         }
 
-
-
 # set up website urls
-@app.route('/date', methods=['POST','GET'])
-def get_prison_data():
+@app.route('/date/<date>', methods=['POST','GET'])
+def get_prison_data(date):
+    data = []
+    for facility in facilities.items():
+        if facility[1].get("Date") <= date:
+            data.append(facility)
+         
+
     if request.method == 'POST':
-        return facilities
+        return "Oops all berries, should not be here!"
+    else:
+        return render_template("dates.html", dates=data)
 
 @app.route('/public/<path:path>')
 def send_public(path):
@@ -45,21 +52,27 @@ def test_page(name):
 def index():
     if request.method == 'GET':
         return render_template("index.html")
-    headline = "Welcome Newcomer!"
+
     if request.method == "POST":
-        if len(notes) > 0:
-            del notes[0]
-        note = request.form.get("note")
-        notes.append(note)
-        print(note)
-        return redirect(f'date={notes[0]}') # this line returns an error
+        #if len(notes) > 0:
+        #    del notes[0]
+        day = request.form.get("day")
+        month = request.form.get('month')
+        year = request.form.get('year')
+        #if(int(day) > 31 or int(day) < 0):
+
+        date = year + "-" + month + "-" + day
+        #notes.append(notes)
+        #print(notes)
+        return redirect(f'/date/{date}')
+
     # Way to include the dates into the html in a selectable way
-    dates = [101021,101121,101221,101321,101421,101521]
+    # dates = [101021,101121,101221,101321,101421,101521]
     # pass in headline variable to html
 
 
-'''# Huge Security Violation
+# Huge Security Violation
 # Remove debug when fully deployed
 if __name__ == "__main__":
     app.run(debug=True, use_reloader=True)
-'''
+

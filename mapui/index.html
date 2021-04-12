@@ -1,7 +1,21 @@
 <!DOCTYPE html>
 <html>
 <head>
+        <!-- This is an example of where we can use scripts within the html -->
+    <script type="text/javascript">
+        function dummyFunction(){
+            alert( 'This is a dummy script :) ')
+        }
+    </script>
+
 	<title>Group 10 COVID-19 Map</title>
+
+	<!-- This is an example of where we can use scripts within the html -->
+	<script type="text/javascript">
+		function dummyFunction(){
+			alert( 'This is a dummy script :) ')
+		}
+	</script>
 
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,6 +28,23 @@
 
 </head>
 <body>
+	<h1>{{ headline }}</h1>
+    Area for the content of the webpage
+    <!-- Java Function Call -->
+    <p onclick="javascript:dummyFunction();">Click me!</p>
+
+    <div>
+        <input name="date" list="dates" placeholder="Covid-19 Date Selection">
+        <!-- List of Covid Data Example -->
+        <datalist id="dates">
+            {% for date in dates %}
+                <option value={{ date }}>
+            {% endfor %}
+        </datalist>
+    </div>
+
+    <a href="{{ url_for('test_page',name='Group10') }}">Link to second page</a>
+
 <!-- div element with a certain id where you want your map to be -->
 <div id="mapid" style="width: 700px; height: 700px;"></div>
 <script>

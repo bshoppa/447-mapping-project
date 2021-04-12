@@ -35,7 +35,9 @@
     </div>
 
     <form action="{{ url_for('index') }}" method="post">
-        <input type="text" name="note" placeholder="Dummy Button">
+        <input type="text" name="year" placeholder="Year (XXXX)">
+        <input type="text" name="day" placeholder="Day (XX)">
+        <input type="text" name="month" placeholder="Month (XX)">
         <button>Submit</button>
     </form>
 <a href="{{ url_for('test_page',name='Group10') }}">Link to second page</a>
