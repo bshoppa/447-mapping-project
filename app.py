@@ -44,22 +44,50 @@ for key in facilities:
         try:
             if counties.get(county_name):
                 counties[county_name][1] += int(facility['Cases'])
+            else:
+                print("warning: county not found", county_name, "; key",key,"not added to county display")
         except (ValueError):
-            print("nothing happened!!!!")
+            print("warning: key", key, "does not have a case value")
 
-# set up website urls
-@app.route('/date/<date>', methods=['POST','GET'])
-def get_prison_data(date):
+# print([key for key in counties])
+
+'''
+/data
+parameters: date (optional)
+output: a facilities dictionary, automatically converted to a json for the map to render
+'''
+@app.route('/data', methods=['POST'])
+def get_prison_date():
+    date = request.args.get("date")
+    print("date input: %s" % date)
+    if date is None:
+        return facilities
     data = []
     for facility in facilities.items():
-        if facility[1].get("Date") <= date:
+        if date is not None:
+            if facility[1].get("Date") <= date:
+                data.append(facility)
+        else:
             data.append(facility)
+    return data
 
-    if request.method == 'POST':
-        return facilities
-        return "Oops all berries, should not be here!"
-    else:
-        return render_template("dates.html", dates=data)
+'''
+/research.html
+parameters: date (optional)
+output: a page with the data in plaintext
+'''
+@app.route('/research.html', methods=['GET'])
+def get_research_page():
+    date = request.args.get("date")
+    print("date input: %s" % date)
+    data = []
+    for facility in facilities.items():
+        if date is not None:
+            if facility[1].get("Date") <= date:
+                data.append(facility)
+        else:
+            data.append(facility)
+    return render_template("research.html", dates=data)
 
 @app.route('/counties', methods=['POST','GET'])
 def send_counties():
@@ -110,7 +138,7 @@ def index():
             month = '0' + month
 
         date = year + "-" + month + "-" + day
-        return redirect(f'/date/{date}')
+        return redirect('/research.html?date=%s' % date)
 
 # Huge Security Violation
 # Remove debug when fully deployed
