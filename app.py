@@ -45,9 +45,9 @@ for key in facilities:
             if counties.get(county_name):
                 counties[county_name][1] += int(facility['Cases'])
             else:
-                print("warning: county not found", county_name, "; key",key,"not added to county display")
+                print("\033[33mwarning: county not found", county_name, "; key",key,"not added to county display\033[0m")
         except (ValueError):
-            print("warning: key", key, "does not have a case value")
+            print("\033[33mwarning: key", key, "does not have a case value\033[0m")
 
 # print([key for key in counties])
 
