@@ -20,8 +20,11 @@ counties = {}
 for filename in os.listdir('countypolygons'):
     county_name = filename[:-9]
     #print(county_name)
+
+    # initialize the county with our data structure (just an array with the geojson and the case number, which is 0 by default)
     counties[county_name] = [json.load(open('countypolygons/' + filename)), 0]
 
+# load latest data
 with open("CA-historical-data.csv") as csvfile:
     reader = csv.DictReader(csvfile, skipinitialspace=True)
     for row in reader:
@@ -34,6 +37,7 @@ with open("CA-historical-data.csv") as csvfile:
             'County': row['County']
         }
 
+# locate the counties associated with facilities. add latest case data to the counties.
 for key in facilities:
     facility = facilities[key]
     if counties.get(facility['County']):
@@ -89,15 +93,31 @@ def get_research_page():
             data.append(facility)
     return render_template("research.html", dates=data)
 
+'''
+/counties
+parameters: none
+output: a json for website javascript, containing each geojson and evaluated county cases in the following format:
+{
+    '{county_name}': [{loaded countygeojson}, {cases}]
+    ...
+}
+'''
 @app.route('/counties', methods=['POST','GET'])
 def send_counties():
     return counties
 
-
+'''
+webhook:
+serve public directories
+'''
 @app.route('/public/<path:path>')
 def send_public(path):
     return send_from_directory('public', path)
 
+'''
+webhook:
+user greeting page
+'''
 @app.route('/myname<name>', methods=['POST','GET'])
 def test_page(name):
     print("forming response")
@@ -105,6 +125,10 @@ def test_page(name):
     string = "Hello " + name
     return render_template("test.html", name=string)
 
+'''
+webhook:
+serve index.html at the root directory, and redirect people who press the "Submit" button to research.html.
+'''
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'GET':
