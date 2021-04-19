@@ -1,5 +1,6 @@
 from flask import Flask
 from flask import render_template, redirect, request, send_file, send_from_directory
+from flask_sqlalchemy import SQLAlchemy
 
 import os
 import json
@@ -8,6 +9,21 @@ import csv
 import string
 
 app = Flask(__name__)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
+db = SQLAlchemy(app)
+
+class Facility(db.Model):
+    id_num = db.Column(db.Integer, primary_key = True)
+    Latitude = db.Column(db.Float, nullable = False)
+    Longitude = db.Column(db.Float, nullable = False)
+    name = db.Column(db.String(100), nullable = False, unique = True)
+    Cases = db.Column(db.Integer, nullable = False, default = 0)
+    Date = db.Column(db.Date, nullable = False)
+    County = db.Column(db.String(100), nullable = False, default = "Fluffy- if ur seeing this something wrong bro")
+    def __repo__(self):
+        return f"User('{self.id_num}', '{self.Latitude}', '{self.Longitude}')"
+
 
 
 # initialize data
