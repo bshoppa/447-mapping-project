@@ -128,7 +128,10 @@ def index():
 
     # input for date
     if request.method == "POST":
-        curyear = datetime.now().year
+        date = request.form.get("date")
+        print(date)
+        return redirect('/research.html?date=%s' % date)
+"""         curyear = datetime.now().year
         day = request.form.get("day")
         month = request.form.get('month')
         year = request.form.get('year')
@@ -153,8 +156,8 @@ def index():
         elif(len(month) < 2):
             month = '0' + month
 
-        date = year + "-" + month + "-" + day
-        return redirect('/research.html?date=%s' % date)
+        date = year + "-" + month + "-" + day """
+        
 
 # Huge Security Violation
 # Remove debug when fully deployed
