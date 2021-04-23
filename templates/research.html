@@ -15,7 +15,8 @@
         Please select a valid date!
     {% endif %}
     {% for date in dates %}
-        {{ date }} <br>
+        {{ date['Date'], date['Longitude'],date['County'],date['Latitude'], date['Cases'] }} <br>
+
     {% endfor %}
 </p>
 {% endblock %}

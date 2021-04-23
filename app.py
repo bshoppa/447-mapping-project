@@ -131,13 +131,19 @@ output: a page with the data in plaintext
 def get_research_page():
     date = request.args.get("date")
     print("date input: %s" % date)
-    data = []
+    #data = []
+    #data = Place.query.filter_by(Date = date).all()
+    #data = Place.query.order_by(Place.Date).all()
+    data = Place.query.filter(Place.Date < date).all() 
+    print("got from database  : " , data)
+    '''
     for facility in facilities.items():
         if date is not None:
             if facility[1].get("Date") <= date:
                 data.append(facility)
         else:
             data.append(facility)
+            '''
     return render_template("research.html", dates=data)
 
 @app.route('/counties', methods=['POST','GET'])
