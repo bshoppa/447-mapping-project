@@ -13,32 +13,26 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
 db = SQLAlchemy(app)
 
+#facilityid and date to be primary key
 class Place(db.Model):
     id_num = db.Column(db.Integer, primary_key = True)
+    Facility_ID = db.Column(db.Integer, primary_key = True)
     Latitude = db.Column(db.String(100), nullable = False, default = 0.0)
     Longitude = db.Column(db.String(100), nullable = False, default = 0.0)
-    name = db.Column(db.String(100), nullable = False, unique = True)
+    name = db.Column(db.String(100), nullable = False)
     Cases = db.Column(db.String(100), nullable = False)
-    Date = db.Column(db.String(100), nullable = False)
+    Date = db.Column(db.String(100), nullable = False, primary_key = True)
     County = db.Column(db.String(100), nullable = False, default = "Fluffy- if ur seeing this something wrong bro")
-
-    #id_num = db.Column(db.Integer, primary_key = True)
-    #Latitude = db.Column(db.Float, nullable = False, default = 0.0)
-    #Longitude = db.Column(db.Float, nullable = False, default = 0.0)
-    #name = db.Column(db.String(100), nullable = False, unique = True)
-    #Cases = db.Column(db.String(100), nullable = False)
-    #Date = db.Column(db.String(100), nullable = False)
-    #County = db.Column(db.String(100), nullable = False, default = "Fluffy- if ur seeing this something wrong bro")
 
 
 
     def __repo__(self):
         return f"User('{self.id_num}', '{self.Latitude}', '{self.Longitude}')"
 
-db.drop_all() # drops everything just in case 
-db.create_all() # creates everything new 
+db.drop_all() # drops everything just in case
+db.create_all() # creates everything new
 
-tempCount = 0; 
+tempCount = 0;
 
 # initialize data
 notes = []
@@ -58,26 +52,43 @@ for filename in os.listdir('countypolygons'):
 with open("CA-historical-data.csv") as csvfile:
     reader = csv.DictReader(csvfile, skipinitialspace=True)
     for row in reader:
-        facilities[row['Facility.ID']] = {
-            'Latitude': row['Latitude'],
-            'Longitude': row['Longitude'],
-            'Name': row['Name'],
-            'Cases': row['Residents.Confirmed'],
-            'Date': row['Date'],
-            'County': row['County']
-            
-        }
-        
-for all in facilities:
-    facility = facilities[all] 
-    newData = Place(id_num = tempCount, 
+        newData = Place(id_num = tempCount,
+        Longitude = row['Longitude'],
+        Latitude = row['Latitude'],
+        name = row['Name'],
+        Cases = row['Residents.Confirmed'],
+        Date = row['Date'],
+        County = row['County'],
+        Facility_ID = row['Facility.ID']
+        )
+        tempCount = tempCount + 1
+        db.session.add(newData)
+        db.session.commit()
+
+
+        #Facility_ID = row['Facility_ID']
+        #facilities[row['Facility.ID']] = {
+            #'Latitude': row['Latitude'],
+            #'Longitude': row['Longitude'],
+            #'Name': row['Name'],
+            #'Cases': row['Residents.Confirmed'],
+            #'Date': row['Date'],
+            #'County': row['County']
+
+
+
+'''for all in facilities:
+    facility = facilities[all]
+    newData = Place(id_num = tempCount,
     Longitude = facility['Longitude'],
-    Latitude = facility['Latitude'], 
+    Latitude = facility['Latitude'],
     name = facility['Name'],
     Cases = facility['Cases'],
     Date = facility['Date'],
-    County = facility['County']
-    #Longitude = facilities[row['Facility.ID']], 
+    County = facility['County'],
+    Facility_ID = all
+
+    #Longitude = facilities[row['Facility.ID']],
     #Latitude = facilities[row['Facility.ID']].Latitude,
     #name = facilities[row['Facility.ID']].Name,
     #Cases = facilities[row['Facility.ID']].Cases,
@@ -138,7 +149,7 @@ def get_research_page():
     #data = []
     #data = Place.query.filter_by(Date = date).all()
     #data = Place.query.order_by(Place.Date).all()
-    data = Place.query.filter(Place.Date < date).all() 
+    data = Place.query.filter(Place.Date < date).all()
     print("got from database  : " , data)
     '''
     for facility in facilities.items():
@@ -222,7 +233,7 @@ def index():
             month = '0' + month
 
         date = year + "-" + month + "-" + day """
-        
+
 
 # Huge Security Violation
 # Remove debug when fully deployed
