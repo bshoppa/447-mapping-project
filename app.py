@@ -11,6 +11,7 @@ import string
 app = Flask(__name__)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 #facilityid and date to be primary key
@@ -63,7 +64,8 @@ with open("CA-historical-data.csv") as csvfile:
         )
         tempCount = tempCount + 1
         db.session.add(newData)
-        db.session.commit()
+
+db.session.commit()
 
 
         #Facility_ID = row['Facility_ID']
@@ -116,6 +118,8 @@ for key in facilities:
             print("\033[33mwarning: key", key, "does not have a case value\033[0m")
 
 # print([key for key in counties])
+
+'''
 
 '''
 /data
