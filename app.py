@@ -35,10 +35,10 @@ class Place(db.Model):
     def __repo__(self):
         return f"User('{self.id_num}', '{self.Latitude}', '{self.Longitude}')"
 
-db.drop_all() # drops everything just in case 
-db.create_all() # creates everything new 
+db.drop_all() # drops everything just in case
+db.create_all() # creates everything new
 
-tempCount = 0; 
+tempCount = 0;
 
 # initialize data
 notes = []
@@ -58,26 +58,30 @@ for filename in os.listdir('countypolygons'):
 with open("CA-historical-data.csv") as csvfile:
     reader = csv.DictReader(csvfile, skipinitialspace=True)
     for row in reader:
-        facilities[row['Facility.ID']] = {
-            'Latitude': row['Latitude'],
-            'Longitude': row['Longitude'],
-            'Name': row['Name'],
-            'Cases': row['Residents.Confirmed'],
-            'Date': row['Date'],
-            'County': row['County']
-            
-        }
-        
+        # Initialize
+        if facilities.get(row['Facility.ID']) is None:
+            facilities[row['Facility.ID']] = {
+                'Latitude': row['Latitude'],
+                'Longitude': row['Longitude'],
+                'Name': row['Name'],
+                'CaseDates': [],
+                'County': row['County']
+            }
+        else:
+            facility = facilities[row['Facility.ID']]
+            facility['CaseDates'].append({'Cases': row['Residents.Confirmed'], 'Date': row['Date']})
+
 for all in facilities:
-    facility = facilities[all] 
-    newData = Place(id_num = tempCount, 
+    facility = facilities[all]
+    print(all, facility)
+    newData = Place(id_num = tempCount,
     Longitude = facility['Longitude'],
-    Latitude = facility['Latitude'], 
+    Latitude = facility['Latitude'],
     name = facility['Name'],
     Cases = facility['Cases'],
     Date = facility['Date'],
     County = facility['County']
-    #Longitude = facilities[row['Facility.ID']], 
+    #Longitude = facilities[row['Facility.ID']],
     #Latitude = facilities[row['Facility.ID']].Latitude,
     #name = facilities[row['Facility.ID']].Name,
     #Cases = facilities[row['Facility.ID']].Cases,
@@ -138,7 +142,7 @@ def get_research_page():
     #data = []
     #data = Place.query.filter_by(Date = date).all()
     #data = Place.query.order_by(Place.Date).all()
-    data = Place.query.filter(Place.Date < date).all() 
+    data = Place.query.filter(Place.Date < date).all()
     print("got from database  : " , data)
     '''
     for facility in facilities.items():
@@ -222,7 +226,7 @@ def index():
             month = '0' + month
 
         date = year + "-" + month + "-" + day """
-        
+
 
 # Huge Security Violation
 # Remove debug when fully deployed
