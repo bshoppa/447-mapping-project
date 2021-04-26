@@ -74,23 +74,23 @@ with open("CA-historical-data.csv") as csvfile:
 for all in facilities:
     facility = facilities[all]
     print(all, facility)
-    newData = Place(id_num = tempCount,
-    Longitude = facility['Longitude'],
-    Latitude = facility['Latitude'],
-    name = facility['Name'],
-    Cases = facility['Cases'],
-    Date = facility['Date'],
-    County = facility['County']
+    #newData = Place(id_num = tempCount,
+    #Longitude = facility['Longitude'],
+    #Latitude = facility['Latitude'],
+    #name = facility['Name'],
+    #Cases = facility['Cases'],
+    #Date = facility['Date'],
+    #County = facility['County']
     #Longitude = facilities[row['Facility.ID']],
     #Latitude = facilities[row['Facility.ID']].Latitude,
     #name = facilities[row['Facility.ID']].Name,
     #Cases = facilities[row['Facility.ID']].Cases,
     #Date = facilities[row['Facility.ID']].Date,
     #County = facilities[row['Facility.ID']].County)
-    )
+    #)
     tempCount = tempCount + 1
-    db.session.add(newData)
-    db.session.commit()
+    #db.session.add(newData)
+    #db.session.commit()
 
 # locate the counties associated with facilities. add latest case data to the counties.
 for key in facilities:
