@@ -58,8 +58,8 @@ for filename in os.listdir('countypolygons'):
 with open("CA-historical-data.csv") as csvfile:
     reader = csv.DictReader(csvfile, skipinitialspace=True)
     for row in reader:
-        # Initialize
         if facilities.get(row['Facility.ID']) is None:
+            # Initialize
             facilities[row['Facility.ID']] = {
                 'Latitude': row['Latitude'],
                 'Longitude': row['Longitude'],
@@ -67,7 +67,11 @@ with open("CA-historical-data.csv") as csvfile:
                 'CaseDates': [],
                 'County': row['County']
             }
+            
+            facility = facilities[row['Facility.ID']]
+            facility['CaseDates'].append({'Cases': row['Residents.Confirmed'], 'Date': row['Date']})
         else:
+            # Insert cases
             facility = facilities[row['Facility.ID']]
             facility['CaseDates'].append({'Cases': row['Residents.Confirmed'], 'Date': row['Date']})
 
