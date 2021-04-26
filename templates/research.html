@@ -10,8 +10,13 @@
 <h3>This is what facilities is:</h3>
 <p>
     <a href="{{ url_for('index') }}"> Link to Map</a> <br> <br>
+
+    {% if not dates %}
+        Please select a valid date!
+    {% endif %}
     {% for date in dates %}
-        {{ date }} <br>
+        {{ date['Date'], date['Longitude'],date['County'],date['Latitude'], date['Cases'] }} <br>
+
     {% endfor %}
 </p>
 {% endblock %}

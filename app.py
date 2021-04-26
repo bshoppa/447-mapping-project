@@ -1,5 +1,6 @@
 from flask import Flask
 from flask import render_template, redirect, request, send_file, send_from_directory
+from flask_sqlalchemy import SQLAlchemy
 
 import os
 import json
@@ -9,6 +10,35 @@ import string
 
 app = Flask(__name__)
 
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
+db = SQLAlchemy(app)
+
+class Place(db.Model):
+    id_num = db.Column(db.Integer, primary_key = True)
+    Latitude = db.Column(db.String(100), nullable = False, default = 0.0)
+    Longitude = db.Column(db.String(100), nullable = False, default = 0.0)
+    name = db.Column(db.String(100), nullable = False, unique = True)
+    Cases = db.Column(db.String(100), nullable = False)
+    Date = db.Column(db.String(100), nullable = False)
+    County = db.Column(db.String(100), nullable = False, default = "Fluffy- if ur seeing this something wrong bro")
+
+    #id_num = db.Column(db.Integer, primary_key = True)
+    #Latitude = db.Column(db.Float, nullable = False, default = 0.0)
+    #Longitude = db.Column(db.Float, nullable = False, default = 0.0)
+    #name = db.Column(db.String(100), nullable = False, unique = True)
+    #Cases = db.Column(db.String(100), nullable = False)
+    #Date = db.Column(db.String(100), nullable = False)
+    #County = db.Column(db.String(100), nullable = False, default = "Fluffy- if ur seeing this something wrong bro")
+
+
+
+    def __repo__(self):
+        return f"User('{self.id_num}', '{self.Latitude}', '{self.Longitude}')"
+
+db.drop_all() # drops everything just in case 
+db.create_all() # creates everything new 
+
+tempCount = 0; 
 
 # initialize data
 notes = []
@@ -35,7 +65,28 @@ with open("CA-historical-data.csv") as csvfile:
             'Cases': row['Residents.Confirmed'],
             'Date': row['Date'],
             'County': row['County']
+            
         }
+        
+for all in facilities:
+    facility = facilities[all] 
+    newData = Place(id_num = tempCount, 
+    Longitude = facility['Longitude'],
+    Latitude = facility['Latitude'], 
+    name = facility['Name'],
+    Cases = facility['Cases'],
+    Date = facility['Date'],
+    County = facility['County']
+    #Longitude = facilities[row['Facility.ID']], 
+    #Latitude = facilities[row['Facility.ID']].Latitude,
+    #name = facilities[row['Facility.ID']].Name,
+    #Cases = facilities[row['Facility.ID']].Cases,
+    #Date = facilities[row['Facility.ID']].Date,
+    #County = facilities[row['Facility.ID']].County)
+    )
+    tempCount = tempCount + 1
+    db.session.add(newData)
+    db.session.commit()
 
 # locate the counties associated with facilities. add latest case data to the counties.
 for key in facilities:
@@ -84,13 +135,19 @@ output: a page with the data in plaintext
 def get_research_page():
     date = request.args.get("date")
     print("date input: %s" % date)
-    data = []
+    #data = []
+    #data = Place.query.filter_by(Date = date).all()
+    #data = Place.query.order_by(Place.Date).all()
+    data = Place.query.filter(Place.Date < date).all() 
+    print("got from database  : " , data)
+    '''
     for facility in facilities.items():
         if date is not None:
             if facility[1].get("Date") <= date:
                 data.append(facility)
         else:
             data.append(facility)
+            '''
     return render_template("research.html", dates=data)
 
 '''
@@ -136,7 +193,10 @@ def index():
 
     # input for date
     if request.method == "POST":
-        curyear = datetime.now().year
+        date = request.form.get("date")
+        print(date)
+        return redirect('/research.html?date=%s' % date)
+"""         curyear = datetime.now().year
         day = request.form.get("day")
         month = request.form.get('month')
         year = request.form.get('year')
@@ -161,8 +221,8 @@ def index():
         elif(len(month) < 2):
             month = '0' + month
 
-        date = year + "-" + month + "-" + day
-        return redirect('/research.html?date=%s' % date)
+        date = year + "-" + month + "-" + day """
+        
 
 # Huge Security Violation
 # Remove debug when fully deployed
