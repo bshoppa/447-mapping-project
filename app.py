@@ -15,9 +15,10 @@ db = SQLAlchemy(app)
 
 class Place(db.Model):
     id_num = db.Column(db.Integer, primary_key = True)
+    Facility_ID = db.Column(db.String(100), default = 0.0)
     Latitude = db.Column(db.String(100), nullable = False, default = 0.0)
     Longitude = db.Column(db.String(100), nullable = False, default = 0.0)
-    name = db.Column(db.String(100), nullable = False, unique = True)
+    name = db.Column(db.String(100), nullable = False)
     Cases = db.Column(db.String(100), nullable = False)
     Date = db.Column(db.String(100), nullable = False)
     County = db.Column(db.String(100), nullable = False, default = "Fluffy- if ur seeing this something wrong bro")
@@ -38,7 +39,7 @@ class Place(db.Model):
 db.drop_all() # drops everything just in case
 db.create_all() # creates everything new
 
-tempCount = 0;
+tempCount = 0
 
 # initialize data
 notes = []
@@ -54,63 +55,86 @@ for filename in os.listdir('countypolygons'):
     # initialize the county with our data structure (just an array with the geojson and the case number, which is 0 by default)
     counties[county_name] = [json.load(open('countypolygons/' + filename)), 0]
 
+counter = 0
 # load latest data
 with open("CA-historical-data.csv") as csvfile:
     reader = csv.DictReader(csvfile, skipinitialspace=True)
     for row in reader:
+        facilities[counter] = {
+                'Latitude': row['Latitude'],
+                'Longitude': row['Longitude'],
+                'Name': row['Name'],
+                'County': row['County'],
+                'Cases' : row['Residents.Confirmed'],
+                'Date': row['Date'],
+                'Facility_ID' : row['Facility.ID']
+            }
+        counter = counter + 1
+        '''
         if facilities.get(row['Facility.ID']) is None:
             # Initialize
             facilities[row['Facility.ID']] = {
                 'Latitude': row['Latitude'],
                 'Longitude': row['Longitude'],
                 'Name': row['Name'],
-                'CaseDates': [],
-                'County': row['County']
+                'County': row['County'],
+                'Cases' : row['Residents.Confirmed'],
+                'Date': row['Date']
             }
-            
-            facility = facilities[row['Facility.ID']]
-            facility['CaseDates'].append({'Cases': row['Residents.Confirmed'], 'Date': row['Date']})
         else:
-            # Insert cases
             facility = facilities[row['Facility.ID']]
-            facility['CaseDates'].append({'Cases': row['Residents.Confirmed'], 'Date': row['Date']})
+            facility['Cases'] : row['Residents.Confirmed']
+            facility['Date'] : row['Date']
+            facility['Latitude'] : row['Latitude']
+            facility['Longitude'] : row['Longitude']
+            facility['Name'] : row['Name']
+            facility['County'] : row['County']
+            '''
+
+            
+            #facility = facilities[row['Facility.ID']]
+            #facility['CaseDates'].append({'Cases': row['Residents.Confirmed'], 'Date': row['Date']})
+        #else:
+            # Insert cases
+            #facility = facilities[row['Facility.ID']]
+            #facility['CaseDates'].append({'Cases': row['Residents.Confirmed'], 'Date': row['Date']})
+print("The number of entries in dict is : " , len(facilities))
+print("The number of keys in dict is : " , len(facilities.keys()))
+print("The number of values in dict is : " , len(facilities.values()))
+
+
 
 for all in facilities:
     facility = facilities[all]
-    print(all, facility)
-    #newData = Place(id_num = tempCount,
-    #Longitude = facility['Longitude'],
-    #Latitude = facility['Latitude'],
-    #name = facility['Name'],
-    #Cases = facility['Cases'],
-    #Date = facility['Date'],
-    #County = facility['County']
-    #Longitude = facilities[row['Facility.ID']],
-    #Latitude = facilities[row['Facility.ID']].Latitude,
-    #name = facilities[row['Facility.ID']].Name,
-    #Cases = facilities[row['Facility.ID']].Cases,
-    #Date = facilities[row['Facility.ID']].Date,
-    #County = facilities[row['Facility.ID']].County)
-    #)
+    #print(all, facility)
+    newData = Place(id_num = all,
+    Facility_ID = facility['Facility_ID'], 
+    Longitude = facility['Longitude'],
+    Latitude = facility['Latitude'],
+    name = facility['Name'],
+    Cases = facility['Cases'],
+    Date = facility['Date'],
+    County = facility['County']
+    )
     tempCount = tempCount + 1
-    #db.session.add(newData)
-    #db.session.commit()
+    db.session.add(newData)
+    db.session.commit()
 
 # locate the counties associated with facilities. add latest case data to the counties.
-for key in facilities:
-    facility = facilities[key]
-    if counties.get(facility['County']):
-        counties[facility['County']][1] += int(facility['Cases'])
-    else:
+#for key in facilities:
+    #facility = facilities[key]
+    #if counties.get(facility['County']):
+        #counties[facility['County']][1] += int(facility['Cases'])
+    #else:
         #print(facility['County'], "not found")
-        county_name = string.capwords(facility['County'].lower())
-        try:
-            if counties.get(county_name):
-                counties[county_name][1] += int(facility['Cases'])
-            else:
-                print("\033[33mwarning: county not found", county_name, "; key",key,"not added to county display\033[0m")
-        except (ValueError):
-            print("\033[33mwarning: key", key, "does not have a case value\033[0m")
+    #    county_name = string.capwords(facility['County'].lower())
+    #    try:
+    #        if counties.get(county_name):
+    #            #counties[county_name][1] += int(facility['Cases'])
+    #        else:
+    ##            print("\033[33mwarning: county not found", county_name, "; key",key,"not added to county display\033[0m")
+    #    except (ValueError):
+    #        print("\033[33mwarning: key", key, "does not have a case value\033[0m")
 
 # print([key for key in counties])
 
@@ -146,7 +170,7 @@ def get_research_page():
     #data = []
     #data = Place.query.filter_by(Date = date).all()
     #data = Place.query.order_by(Place.Date).all()
-    data = Place.query.filter(Place.Date < date).all()
+    data = Place.query.filter(Place.Date <= date).all()
     print("got from database  : " , data)
     '''
     for facility in facilities.items():
@@ -156,7 +180,7 @@ def get_research_page():
         else:
             data.append(facility)
             '''
-    return render_template("research.html", dates=data)
+    return render_template("research.html", dates = data)
 
 '''
 /counties
@@ -208,7 +232,6 @@ def index():
         day = request.form.get("day")
         month = request.form.get('month')
         year = request.form.get('year')
-
         # error checking for date input
         if(int(day) > 31 or int(day) < 0):
             print("We day bad")
@@ -219,7 +242,6 @@ def index():
         elif(int(month) > 12 or int(month) < 0):
             print("We month bad")
             return redirect('/')
-
         if(len(day) < 2):
             day = '0' + day
         elif(len(day) > 2):
@@ -228,7 +250,6 @@ def index():
             month = month[-2:]
         elif(len(month) < 2):
             month = '0' + month
-
         date = year + "-" + month + "-" + day """
 
 
