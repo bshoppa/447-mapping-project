@@ -118,7 +118,9 @@ for all in facilities:
     )
     tempCount = tempCount + 1
     db.session.add(newData)
-    db.session.commit()
+
+
+db.session.commit()
 
 # locate the counties associated with facilities. add latest case data to the counties.
 #for key in facilities:
