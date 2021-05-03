@@ -46,9 +46,7 @@ return {
 
 /** L.geoJson(statesData, {style: style}).addTo(map); **/
 
-fetch('/counties',
-{"method": "POST", 'headers': {'Accept': 'application/json', 'Content-Type': 'application/json'}, "body" : JSON.stringify({})}
-).then(res => res.json()).then(data => {
+function renderCounties(data) {
 	for(var key in data){
 		geojsonFile = data[key][0];
 		console.log(geojsonFile);
@@ -58,12 +56,8 @@ fetch('/counties',
 		console.log(data[key][1]);
 		L.geoJSON(geojsonFile, {style: style}).addTo(mymap);
 	}
-});
-
-// load every prison
-fetch('/data',
-{"method": "POST", 'headers': {'Accept': 'application/json', 'Content-Type': 'application/json'}, "body" : JSON.stringify({})}
-).then(res => res.json()).then(data => {
+}
+function renderFacilities(data) {
 	for(var key in data){
 		var lva = data[key]
 		if(lva.Latitude != "NA" && Number(lva.Cases) > 0){
@@ -95,4 +89,13 @@ fetch('/data',
 			/**var marker = L.marker([Number(lva.Latitude), Number(lva.Longitude)], {icon: myIcon}).addTo(mymap); **/
 		}
 	}
-});
+}
+
+fetch('/counties',
+{"method": "POST", 'headers': {'Accept': 'application/json', 'Content-Type': 'application/json'}, "body" : JSON.stringify({})}
+).then(res => res.json()).then(renderCounties);
+
+// load every prison
+fetch('/data',
+{"method": "POST", 'headers': {'Accept': 'application/json', 'Content-Type': 'application/json'}, "body" : JSON.stringify({})}
+).then(res => res.json()).then(renderFacilities);

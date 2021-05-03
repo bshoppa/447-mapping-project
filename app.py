@@ -91,7 +91,7 @@ with open("CA-historical-data.csv") as csvfile:
             facility['County'] : row['County']
             '''
 
-            
+
             #facility = facilities[row['Facility.ID']]
             #facility['CaseDates'].append({'Cases': row['Residents.Confirmed'], 'Date': row['Date']})
         #else:
@@ -108,7 +108,7 @@ for all in facilities:
     facility = facilities[all]
     #print(all, facility)
     newData = Place(id_num = all,
-    Facility_ID = facility['Facility_ID'], 
+    Facility_ID = facility['Facility_ID'],
     Longitude = facility['Longitude'],
     Latitude = facility['Latitude'],
     name = facility['Name'],
