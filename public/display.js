@@ -98,4 +98,11 @@ fetch('/counties',
 // load every prison
 fetch('/data',
 {"method": "POST", 'headers': {'Accept': 'application/json', 'Content-Type': 'application/json'}, "body" : JSON.stringify({})}
-).then(res => res.json()).then(renderFacilities);
+).then(res => res.json()).then(data =>
+	{
+		console.log("Received data.");
+		renderFacilities(data.List);
+		console.log("Received data.");
+		console.log(data);
+	}
+);
