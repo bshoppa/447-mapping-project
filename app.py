@@ -23,18 +23,20 @@ class Place(db.Model):
     Date = db.Column(db.String(100), nullable = False)
     County = db.Column(db.String(100), nullable = False, default = "Fluffy- if ur seeing this something wrong bro")
 
-    #id_num = db.Column(db.Integer, primary_key = True)
-    #Latitude = db.Column(db.Float, nullable = False, default = 0.0)
-    #Longitude = db.Column(db.Float, nullable = False, default = 0.0)
-    #name = db.Column(db.String(100), nullable = False, unique = True)
-    #Cases = db.Column(db.String(100), nullable = False)
-    #Date = db.Column(db.String(100), nullable = False)
-    #County = db.Column(db.String(100), nullable = False, default = "Fluffy- if ur seeing this something wrong bro")
-
-
 
     def __repo__(self):
         return f"User('{self.id_num}', '{self.Latitude}', '{self.Longitude}')"
+
+class County(db.Model):
+    Latitude = db.Column(db.String(100), nullable = False, default = 0.0)
+    Longitude = db.Column(db.String(100), nullable = False, default = 0.0)
+    County = db.Column(db.String(100), nullable = False, default = "Fluffy- if ur seeing this something wrong bro")
+    Date = db.Column(db.String(100), nullable = False)
+    id_num = db.Column(db.Integer, primary_key = True)
+
+    def __repo__(self):
+        return f"User('{self.id_num}', '{self.Latitude}', '{self.Longitude}')"
+
 
 db.drop_all() # drops everything just in case
 db.create_all() # creates everything new
@@ -121,7 +123,6 @@ for all in facilities:
     )
     tempCount = tempCount + 1
     db.session.add(newData)
-
 
 db.session.commit()
 
