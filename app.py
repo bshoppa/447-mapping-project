@@ -23,18 +23,20 @@ class Place(db.Model):
     Date = db.Column(db.String(100), nullable = False)
     County = db.Column(db.String(100), nullable = False, default = "Fluffy- if ur seeing this something wrong bro")
 
-    #id_num = db.Column(db.Integer, primary_key = True)
-    #Latitude = db.Column(db.Float, nullable = False, default = 0.0)
-    #Longitude = db.Column(db.Float, nullable = False, default = 0.0)
-    #name = db.Column(db.String(100), nullable = False, unique = True)
-    #Cases = db.Column(db.String(100), nullable = False)
-    #Date = db.Column(db.String(100), nullable = False)
-    #County = db.Column(db.String(100), nullable = False, default = "Fluffy- if ur seeing this something wrong bro")
-
-
 
     def __repo__(self):
         return f"User('{self.id_num}', '{self.Latitude}', '{self.Longitude}')"
+
+class County(db.Model):
+    Latitude = db.Column(db.String(100), nullable = False, default = 0.0)
+    Longitude = db.Column(db.String(100), nullable = False, default = 0.0)
+    County = db.Column(db.String(100), nullable = False, default = "Fluffy- if ur seeing this something wrong bro")
+    Date = db.Column(db.String(100), nullable = False)
+    id_num = db.Column(db.Integer, primary_key = True)
+
+    def __repo__(self):
+        return f"User('{self.id_num}', '{self.Latitude}', '{self.Longitude}')"
+
 
 db.drop_all() # drops everything just in case
 db.create_all() # creates everything new
@@ -47,6 +49,9 @@ notes = []
 facilities = {}
 
 counties = {}
+
+mapID = [] 
+
 
 for filename in os.listdir('countypolygons'):
     county_name = filename[:-9]
@@ -70,34 +75,9 @@ with open("CA-historical-data.csv") as csvfile:
                 'Facility_ID' : row['Facility.ID']
             }
         counter = counter + 1
-        '''
-        if facilities.get(row['Facility.ID']) is None:
-            # Initialize
-            facilities[row['Facility.ID']] = {
-                'Latitude': row['Latitude'],
-                'Longitude': row['Longitude'],
-                'Name': row['Name'],
-                'County': row['County'],
-                'Cases' : row['Residents.Confirmed'],
-                'Date': row['Date']
-            }
-        else:
-            facility = facilities[row['Facility.ID']]
-            facility['Cases'] : row['Residents.Confirmed']
-            facility['Date'] : row['Date']
-            facility['Latitude'] : row['Latitude']
-            facility['Longitude'] : row['Longitude']
-            facility['Name'] : row['Name']
-            facility['County'] : row['County']
-            '''
-
+       
             
-            #facility = facilities[row['Facility.ID']]
-            #facility['CaseDates'].append({'Cases': row['Residents.Confirmed'], 'Date': row['Date']})
-        #else:
-            # Insert cases
-            #facility = facilities[row['Facility.ID']]
-            #facility['CaseDates'].append({'Cases': row['Residents.Confirmed'], 'Date': row['Date']})
+        
 print("The number of entries in dict is : " , len(facilities))
 print("The number of keys in dict is : " , len(facilities.keys()))
 print("The number of values in dict is : " , len(facilities.values()))
@@ -118,7 +98,6 @@ for all in facilities:
     )
     tempCount = tempCount + 1
     db.session.add(newData)
-
 
 db.session.commit()
 
@@ -145,20 +124,36 @@ db.session.commit()
 parameters: date (optional)
 output: a facilities dictionary, automatically converted to a json for the map to render
 '''
+doOnce = 0
 @app.route('/data', methods=['POST'])
 def get_prison_date():
     date = request.args.get("date")
     print("date input: %s" % date)
     if date is None:
         return facilities
-    data = []
+    if (doOnce == 0):
+    
+        data = []
+        #data = Place.query.with_entities(Place.id_num).distinct()
+        #data = db.query(Place.id_num.distinct())
+        date = "2222-02-22"
+        data = Place.query.filter(Place.Date <= date).all().distinct(Place.Facility_ID)
+        #mapID = data.Facility_ID.distinct()
+        mapID = data
+        doOnce = doOnce + 1
+    
+    else:
+        print("Data is weird")
+    '''
     for facility in facilities.items():
         if date is not None:
-            if facility[1].get("Date") <= date:
-                data.append(facility)
+
+            #if facility[1].get("Date") <= date:
+            #    data.append(facility)
         else:
             data.append(facility)
-    return data
+            '''
+    return mapID
 
 '''
 /research.html
