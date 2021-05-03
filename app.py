@@ -44,6 +44,9 @@ tempCount = 0
 # initialize data
 notes = []
 
+facility_id_set = set()
+# contains each id once.
+
 facilities = {}
 
 counties = {}
@@ -70,6 +73,7 @@ with open("CA-historical-data.csv") as csvfile:
                 'Facility_ID' : row['Facility.ID']
             }
         counter = counter + 1
+        facility_id_set.add(row['Facility.ID'])
         '''
         if facilities.get(row['Facility.ID']) is None:
             # Initialize
