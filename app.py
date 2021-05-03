@@ -31,6 +31,7 @@ class County(db.Model):
     Latitude = db.Column(db.String(100), nullable = False, default = 0.0)
     Longitude = db.Column(db.String(100), nullable = False, default = 0.0)
     County = db.Column(db.String(100), nullable = False, default = "Fluffy- if ur seeing this something wrong bro")
+    Cases = db.Column(db.String(100), nullable = False)
     Date = db.Column(db.String(100), nullable = False)
     id_num = db.Column(db.Integer, primary_key = True)
 
@@ -61,6 +62,8 @@ for filename in os.listdir('countypolygons'):
 
 counter = 0
 # load latest data
+
+print("loading facilities")
 with open("CA-historical-data.csv") as csvfile:
     reader = csv.DictReader(csvfile, skipinitialspace=True)
     for row in reader:
@@ -74,7 +77,6 @@ with open("CA-historical-data.csv") as csvfile:
                 'Facility_ID' : row['Facility.ID']
             }
         counter = counter + 1
-        facility_id_set.add(row['Facility.ID'])
         '''
         if facilities.get(row['Facility.ID']) is None:
             # Initialize
@@ -103,6 +105,15 @@ with open("CA-historical-data.csv") as csvfile:
             # Insert cases
             #facility = facilities[row['Facility.ID']]
             #facility['CaseDates'].append({'Cases': row['Residents.Confirmed'], 'Date': row['Date']})
+
+print("loading counties")
+with open("us-counties.csv") as csvfile:
+    reader = csv.DictReader(csvfile, skipinitialspace=True)
+    for row in reader:
+        # check if the county specified is in California.
+        if counties.get(row['county']):
+            counties[row['county']][1] = row['cases']
+
 print("The number of entries in dict is : " , len(facilities))
 print("The number of keys in dict is : " , len(facilities.keys()))
 print("The number of values in dict is : " , len(facilities.values()))
@@ -165,7 +176,6 @@ def get_prison_date():
         if date is None:
             date = "2222-02-22"
         queries = Place.query.filter(Place.Date <= date).with_entities(Place.Facility_ID).distinct(Place.Facility_ID)
-        print(queries)
         for facility_id in queries.all():
             facility_id = facility_id[0]
             query_value = Place.query.filter(Place.Date <= date).filter(Place.Facility_ID == facility_id).order_by(Place.Date.desc())
