@@ -22,11 +22,14 @@
 <h1>{{ headline }}</h1>
 
     <form action="{{ url_for('index') }}" method="post">
-        <lable for="Covid Search Date">Select a date to search from<br></lable>
+        <label for="Covid Search Date">Select a date to search from<br></label>
         <input type="date" id="date" name="date">
         <button>Submit</button>
     </form>
 <a href="{{ url_for('test_page',name='Group10') }}">Link to second page</a>
+<p>
+<input type="date" class="mapdate">
+</p>
 </body>
-<script src = "public/display.js?version=3"> </script>
+<script src = "public/display.js?version=50"> </script>
 </html>

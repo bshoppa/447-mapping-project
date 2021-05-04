@@ -11,6 +11,7 @@ import string
 app = Flask(__name__)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 class Place(db.Model):
@@ -28,9 +29,6 @@ class Place(db.Model):
         return f"User('{self.id_num}', '{self.Latitude}', '{self.Longitude}')"
 
 class County(db.Model):
-    Latitude = db.Column(db.String(100), nullable = False, default = 0.0)
-    Longitude = db.Column(db.String(100), nullable = False, default = 0.0)
-    County = db.Column(db.String(100), nullable = False, default = "Fluffy- if ur seeing this something wrong bro")
     Cases = db.Column(db.String(100), nullable = False)
     Date = db.Column(db.String(100), nullable = False)
     id_num = db.Column(db.Integer, primary_key = True)
@@ -109,10 +107,20 @@ with open("CA-historical-data.csv") as csvfile:
 print("loading counties")
 with open("us-counties.csv") as csvfile:
     reader = csv.DictReader(csvfile, skipinitialspace=True)
+    counter = 0
     for row in reader:
-        # check if the county specified is in California.
+        # check if the county specified is in California. (mapping the rest of the us is unnecessary)
         if counties.get(row['county']):
+            # if it is, add it to the database.
+
             counties[row['county']][1] = row['cases']
+            newData = County(
+                id_num = counter,
+                Cases = row['cases'],
+                Date = row['date'],
+            )
+            db.session.add(newData)
+            counter += 1
 
 print("The number of entries in dict is : " , len(facilities))
 print("The number of keys in dict is : " , len(facilities.keys()))
@@ -168,34 +176,29 @@ def get_prison_date():
     global doOnce
     global mapID
 
-    if (doOnce == 0):
-
-        data = []
-        #data = Place.query.with_entities(Place.id_num).distinct()
-        #data = db.query(Place.id_num.distinct())
-        if date is None:
-            date = "2222-02-22"
-        queries = Place.query.filter(Place.Date <= date).with_entities(Place.Facility_ID).distinct(Place.Facility_ID)
-        for facility_id in queries.all():
-            facility_id = facility_id[0]
-            query_value = Place.query.filter(Place.Date <= date).filter(Place.Facility_ID == facility_id).order_by(Place.Date.desc())
-            PlaceObject = query_value.first() # get the first PlaceObject of the Facility ID before the date.
-            myDict = {
-                'Facility_ID' : PlaceObject.Facility_ID,
-                'Latitude' : PlaceObject.Latitude,
-                'Longitude' : PlaceObject.Longitude,
-                'name' : PlaceObject.name,
-                'Cases' : PlaceObject.Cases,
-                'Date' : PlaceObject.Date,
-                'County' : PlaceObject.County
-            }
-            data.append(myDict)
-        #mapID = data.Facility_ID.distinct()
-        mapID = data
-        doOnce = doOnce + 1
-
-    else:
-        print("Data is weird")
+    data = {}
+    #data = Place.query.with_entities(Place.id_num).distinct()
+    #data = db.query(Place.id_num.distinct())
+    if date is None:
+        date = "2222-02-22"
+    queries = Place.query.filter(Place.Date <= date).with_entities(Place.Facility_ID).distinct(Place.Facility_ID)
+    for facility_id in queries.all():
+        facility_id = facility_id[0]
+        query_value = Place.query.filter(Place.Date <= date).filter(Place.Facility_ID == facility_id).order_by(Place.Date.desc())
+        PlaceObject = query_value.first() # get the first PlaceObject of the Facility ID before the date.
+        myDict = {
+            'Facility_ID' : PlaceObject.Facility_ID,
+            'Latitude' : PlaceObject.Latitude,
+            'Longitude' : PlaceObject.Longitude,
+            'name' : PlaceObject.name,
+            'Cases' : PlaceObject.Cases,
+            'Date' : PlaceObject.Date,
+            'County' : PlaceObject.County
+        }
+        data[PlaceObject.Facility_ID] = myDict
+    #mapID = data.Facility_ID.distinct()
+    mapID = data
+    doOnce = doOnce + 1
     '''
     for facility in facilities.items():
         if date is not None:

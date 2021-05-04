@@ -46,63 +46,98 @@ return {
 
 /** L.geoJson(statesData, {style: style}).addTo(map); **/
 
+var countyMarkers = {};
 function renderCounties(data) {
 	for(var key in data){
-		geojsonFile = data[key][0];
-		console.log(geojsonFile);
-		console.log(geojsonFile.properties);
-		// geojsonFile.properties.density = data[key][1]
-		counties_cases[key] = data[key][1];
-		console.log(data[key][1]);
-		L.geoJSON(geojsonFile, {style: style}).addTo(mymap);
-	}
-}
-function renderFacilities(data) {
-	for(var key in data){
-		var lva = data[key]
-		if(lva.Latitude != "NA" && Number(lva.Cases) > 0){
-			var mycircle = L.circle([Number(lva.Latitude), Number(lva.Longitude)], {
-					color: '#0033FF',
-				fillOpacity: 0.5,
-				radius: 5000
-			}).addTo(mymap).bindPopup(Number(lva.Cases).toString() + ' Cases');
-
-			if(lva.Cases != "NA"){
-				mycircle = L.circle([Number(lva.Latitude), Number(lva.Longitude)], {
-					color: getColor(lva.Cases),
-					fillOpacity: 0.5,
-					radius: 5000
-				}).addTo(mymap).bindPopup(Number(lva.Cases).toString() + ' Cases');
-			}
-			/**
-			var myIcon = L.icon({
-				iconUrl: "public/icon1.png"
-			});
-
-			if(Number(lva.Cases) > 1000){
-				myIcon = L.icon({
-					iconUrl: "public/icon2.png"
-				});
-
-			}
-			**/
-			/**var marker = L.marker([Number(lva.Latitude), Number(lva.Longitude)], {icon: myIcon}).addTo(mymap); **/
+		if(countyMarkers[key] == null){
+			geojsonFile = data[key][0];
+			console.log(geojsonFile);
+			console.log(geojsonFile.properties);
+			// geojsonFile.properties.density = data[key][1]
+			counties_cases[key] = data[key][1];
+			console.log(data[key][1]);
+			var mypoly = L.geoJSON(geojsonFile, {style: style}).addTo(mymap);
+			countyMarkers[key] = mypoly;
+		} else {
+			counties_cases[key] = data[key][1];
+			console.log(data[key][1]);
+			countyMarkers[key].setStyle(style);
 		}
 	}
 }
 
-fetch('/counties',
-{"method": "POST", 'headers': {'Accept': 'application/json', 'Content-Type': 'application/json'}, "body" : JSON.stringify({})}
-).then(res => res.json()).then(renderCounties);
-
-// load every prison
-fetch('/data',
-{"method": "POST", 'headers': {'Accept': 'application/json', 'Content-Type': 'application/json'}, "body" : JSON.stringify({})}
-).then(res => res.json()).then(data =>
-	{
-		console.log("Received data.");
-		renderFacilities(data.List);
-		console.log("Received data.");
-		console.log(data);
+var facilityMarkers = {};
+var facilityCases = {};
+function renderFacilities(data) {
+	for(var key in facilityMarkers){
+		facilityMarkers[key].setStyle({color: getColor(0)});
 	}
-);
+	for(var key in data){
+		if(facilityMarkers[key] == null){
+			var lva = data[key]
+			if(lva.Latitude != "NA" && Number(lva.Cases) > 0){
+				var mycircle;
+				if(lva.Cases != "NA"){
+					facilityCases[key] = lva.Cases;
+					mycircle = L.circle([Number(lva.Latitude), Number(lva.Longitude)], {
+						color: getColor(lva.Cases),
+						fillOpacity: 0.5,
+						radius: 5000
+					}).addTo(mymap).bindPopup(Number(facilityCases[key]).toString() + ' Cases');
+				} else {
+					mycircle = L.circle([Number(lva.Latitude), Number(lva.Longitude)], {
+						color: '#0033FF',
+						fillOpacity: 0.5,
+						radius: 5000
+					}).addTo(mymap).bindPopup(Number(facilityCases[key]).toString() + ' Cases');
+				}
+				console.log("Created", mycircle);
+				facilityMarkers[key] = mycircle;
+			}
+		} else {
+			var lva = data[key]
+			if(lva.Latitude != "NA" && Number(lva.Cases) > 0){
+				facilityMarkers[key].setStyle({color: getColor(lva.Cases)});
+				facilityCases[key] = lva.Cases;
+				facilityMarkers[key].setPopupContent(Number(facilityCases[key]).toString() + ' Cases');
+				console.log(lva.Cases)
+				console.log(key);
+			} else {
+				facilityCases[key] = 0;
+				facilityMarkers[key].setPopupContent(Number(facilityCases[key]).toString() + ' Cases');
+			}
+		}
+	}
+}
+
+function load_on_date(date){
+	var date_fragment = '';
+	if(date){
+		date_fragment = '?date=' + date
+	}
+	fetch('/counties' + date_fragment,
+	{"method": "POST", 'headers': {'Accept': 'application/json', 'Content-Type': 'application/json'}, "body" : JSON.stringify({})}
+	).then(res => res.json()).then(renderCounties);
+
+	// load every prison
+	fetch('/data' + date_fragment,
+	{"method": "POST", 'headers': {'Accept': 'application/json', 'Content-Type': 'application/json'}, "body" : JSON.stringify({})}
+	).then(res => res.json()).then(data =>
+		{
+			console.log("Received data.");
+			renderFacilities(data.List);
+			console.log("Received data.");
+			console.log(data);
+		}
+	);
+}
+
+load_on_date(); // loads with the default date - i.e. today's date
+
+const selectElement = document.querySelector('.mapdate');
+function load_button_pressed(){
+	console.log("Load button pressed.");
+	load_on_date(selectElement.value)
+}
+
+selectElement.addEventListener('change', load_button_pressed);
