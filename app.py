@@ -181,11 +181,13 @@ def get_prison_date():
     #data = db.query(Place.id_num.distinct())
     if date is None:
         date = "2222-02-22"
-    queries = Place.query.filter(Place.Date <= date).with_entities(Place.Facility_ID).distinct(Place.Facility_ID)
-    for facility_id in queries.all():
-        facility_id = facility_id[0]
-        query_value = Place.query.filter(Place.Date <= date).filter(Place.Facility_ID == facility_id).order_by(Place.Date.desc())
-        PlaceObject = query_value.first() # get the first PlaceObject of the Facility ID before the date.
+    subquery = Place.query.filter(Place.Date <= date).order_by(Place.Date.desc())
+    query_value = Place.query.select_entity_from(subquery).group_by(Place.Facility_ID)
+    print(query_value)
+    for PlaceObject in query_value.all():
+        #facility_id = facility_id[0]
+
+        #PlaceObject = query_value.first() # get the first PlaceObject of the Facility ID before the date.
         myDict = {
             'Facility_ID' : PlaceObject.Facility_ID,
             'Latitude' : PlaceObject.Latitude,
