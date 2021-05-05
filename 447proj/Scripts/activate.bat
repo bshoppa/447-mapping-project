@@ -8,7 +8,7 @@ if defined _OLD_CODEPAGE (
     "%SystemRoot%\System32\chcp.com" 65001 > nul
 )
 
-set VIRTUAL_ENV=C:\Users\iruka\Desktop\447proj
+set VIRTUAL_ENV=C:\Users\Bailey Shoppa\Desktop\shared with vm\447-mapping-project\447proj
 
 if not defined PROMPT set PROMPT=$P$G
 
