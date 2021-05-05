@@ -1,9 +1,15 @@
 # 447-mapping-project
 
-to run, run this command:
+to run, run this command (linux):
 
 ```sh
 ./start.sh
+```
+
+or this command (windows)
+```sh
+447proj\scripts\activate
+flask run
 ```
 
 to view the app while it's running
