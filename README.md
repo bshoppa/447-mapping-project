@@ -1,5 +1,11 @@
 # 447-mapping-project
 
+## System requirements
+
+- Python3 installed
+- Able to use the virtual environment on python3
+- All python packages are included
+
 to run, run this command (linux):
 
 ```sh
