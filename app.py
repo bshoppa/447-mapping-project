@@ -198,9 +198,21 @@ def get_prison_date():
             'County' : PlaceObject.County
         }
         data[PlaceObject.Facility_ID] = myDict
+    
+    if query_value.count() == 0:
+        print("THERE ARE NO DATA ON THIS MAKE EVERYTHING ZERO")
+        for changeValue in mapID:
+            #changeValue['Cases'] = "0"
+            mapID[changeValue]['Cases'] = 0
+            print(mapID[changeValue]['Cases'])
+    else:
+        mapID = data
+    
     #mapID = data.Facility_ID.distinct()
-    mapID = data
+    
     doOnce = doOnce + 1
+    
+
     '''
     for facility in facilities.items():
         if date is not None:
