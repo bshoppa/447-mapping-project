@@ -54,14 +54,14 @@ function renderCounties(data) {
 			console.log(geojsonFile);
 			console.log(geojsonFile.properties);
 			// geojsonFile.properties.density = data[key][1]
-			counties_cases[key] = data[key][1];
+			counties_cases[key] = data[key][1].Cases;
 			console.log(data[key][1]);
 			var mypoly = L.geoJSON(geojsonFile, {style: style}).addTo(mymap);
 			countyMarkers[key] = mypoly;
 		} else {
-			counties_cases[key] = data[key][1];
+			counties_cases[key] = data[key][1].Cases;
 			console.log(data[key][1]);
-			countyMarkers[key].setStyle(style);
+			countyMarkers[key].setStyle({fillColor: getColor(counties_cases[key])});
 		}
 	}
 }

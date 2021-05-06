@@ -31,6 +31,7 @@ class Place(db.Model):
 class County(db.Model):
     Cases = db.Column(db.String(100), nullable = False)
     Date = db.Column(db.String(100), nullable = False)
+    Name = db.Column(db.String(100), nullable = False)
     id_num = db.Column(db.Integer, primary_key = True)
 
     def __repo__(self):
@@ -56,15 +57,16 @@ for filename in os.listdir('countypolygons'):
     #print(county_name)
 
     # initialize the county with our data structure (just an array with the geojson and the case number, which is 0 by default)
-    counties[county_name] = [json.load(open('countypolygons/' + filename)), 0]
+    counties[county_name] = json.load(open('countypolygons/' + filename))
 
 counter = 0
-# load latest data
 
 print("loading facilities")
 with open("CA-historical-data.csv") as csvfile:
     reader = csv.DictReader(csvfile, skipinitialspace=True)
     for row in reader:
+
+        #print('facility', row['Date'])
         facilities[counter] = {
                 'Latitude': row['Latitude'],
                 'Longitude': row['Longitude'],
@@ -96,14 +98,6 @@ with open("CA-historical-data.csv") as csvfile:
             facility['County'] : row['County']
             '''
 
-
-            #facility = facilities[row['Facility.ID']]
-            #facility['CaseDates'].append({'Cases': row['Residents.Confirmed'], 'Date': row['Date']})
-        #else:
-            # Insert cases
-            #facility = facilities[row['Facility.ID']]
-            #facility['CaseDates'].append({'Cases': row['Residents.Confirmed'], 'Date': row['Date']})
-
 print("loading counties")
 with open("us-counties.csv") as csvfile:
     reader = csv.DictReader(csvfile, skipinitialspace=True)
@@ -114,10 +108,12 @@ with open("us-counties.csv") as csvfile:
             # if it is, add it to the database.
 
             counties[row['county']][1] = row['cases']
+            #print('county', row['date'])
             newData = County(
                 id_num = counter,
                 Cases = row['cases'],
                 Date = row['date'],
+                Name = row['county']
             )
             db.session.add(newData)
             counter += 1
@@ -180,10 +176,10 @@ def get_prison_date():
     #data = Place.query.with_entities(Place.id_num).distinct()
     #data = db.query(Place.id_num.distinct())
     if date is None:
-        date = "2222-02-22"
-    subquery = Place.query.filter(Place.Date <= date).order_by(Place.Date.desc())
+        subquery = Place.query.order_by(Place.Date.desc())
+    else:
+        subquery = Place.query.filter(Place.Date <= date).order_by(Place.Date.desc())
     query_value = Place.query.select_entity_from(subquery).group_by(Place.Facility_ID)
-    print(query_value)
     for PlaceObject in query_value.all():
         #facility_id = facility_id[0]
 
@@ -246,7 +242,27 @@ output: a json for website javascript, containing each geojson and evaluated cou
 '''
 @app.route('/counties', methods=['POST','GET'])
 def send_counties():
-    return counties
+    date = request.args.get("date")
+    print("date input (/counties): %s" % date)
+    if date is None:
+        subquery = County.query.order_by(County.Date.desc())
+    else:
+        subquery = County.query.filter(County.Date <= date).order_by(County.Date.desc())
+    query_value = County.query.select_entity_from(subquery).group_by(County.Name)
+    data = {}
+    for CountyObject in query_value.all():
+        #facility_id = facility_id[0]
+
+        #PlaceObject = query_value.first() # get the first PlaceObject of the Facility ID before the date.
+        myDict = {
+            'Cases' : CountyObject.Cases,
+            'Date' : CountyObject.Date,
+        }
+        data[CountyObject.Name] = [counties[CountyObject.Name], myDict]
+    import json
+    # there's something horribly wrong with flask's dict - to - json system.
+    # instead of a dict, we will return a string.
+    return json.dumps(data)
 
 '''
 webhook:
@@ -281,29 +297,6 @@ def index():
         date = request.form.get("date")
         print(date)
         return redirect('/research.html?date=%s' % date)
-"""         curyear = datetime.now().year
-        day = request.form.get("day")
-        month = request.form.get('month')
-        year = request.form.get('year')
-        # error checking for date input
-        if(int(day) > 31 or int(day) < 0):
-            print("We day bad")
-            return redirect('/')
-        elif(int(year) > curyear):
-            print("We year bad")
-            return redirect('/')
-        elif(int(month) > 12 or int(month) < 0):
-            print("We month bad")
-            return redirect('/')
-        if(len(day) < 2):
-            day = '0' + day
-        elif(len(day) > 2):
-            day = day[-2:]
-        elif(len(month) > 2):
-            month = month[-2:]
-        elif(len(month) < 2):
-            month = '0' + month
-        date = year + "-" + month + "-" + day """
 
 
 # Huge Security Violation
