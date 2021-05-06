@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html lang="en">
 <html>
 <head>
 	<title>Group 10 COVID-19 Map</title>
@@ -13,23 +13,23 @@
 		<!-- Leaflet JavaScript file -->
 	<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
 
-
 </head>
 <body>
 <!-- div element with a certain id where you want your map to be -->
-<div id="mapid" style="width: 700px; height: 700px;"></div>
-
+	<div class="map">
+		<!-- div element with a certain id where you want your map to be -->
+		<div id="mapid" style="width: 800px; height: 700px;"></div>
+	</div>
 <h1>{{ headline }}</h1>
 
+<div class="dateSel">
     <form action="{{ url_for('index') }}" method="post">
-        <label for="Covid Search Date">Select a date to search from<br></label>
+        <lable for="Covid Search Date">Select a date to search from<br></lable>
         <input type="date" id="date" name="date">
         <button>Submit</button>
     </form>
-<a href="{{ url_for('test_page',name='Group10') }}">Link to second page</a>
-<p>
-<input type="date" class="mapdate">
-</p>
+	<a href="{{ url_for('test_page',name='Group10') }}">Link to second page</a>
+</div>
 </body>
-<script src = "public/display.js?version=57"> </script>
+<script src = "public/display.js?version=50"> </script>
 </html>
