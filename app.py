@@ -14,6 +14,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
+#facilityid and date to be primary key
 class Place(db.Model):
     id_num = db.Column(db.Integer, primary_key = True)
     Facility_ID = db.Column(db.String(100), default = 0.0)
@@ -21,7 +22,7 @@ class Place(db.Model):
     Longitude = db.Column(db.String(100), nullable = False, default = 0.0)
     name = db.Column(db.String(100), nullable = False)
     Cases = db.Column(db.String(100), nullable = False)
-    Date = db.Column(db.String(100), nullable = False)
+    Date = db.Column(db.String(100), nullable = False, primary_key = True)
     County = db.Column(db.String(100), nullable = False, default = "Fluffy- if ur seeing this something wrong bro")
 
 
@@ -194,7 +195,7 @@ def get_prison_date():
             'County' : PlaceObject.County
         }
         data[PlaceObject.Facility_ID] = myDict
-    
+
     if query_value.count() == 0:
         print("THERE ARE NO DATA ON THIS MAKE EVERYTHING ZERO")
         for changeValue in mapID:
@@ -203,11 +204,11 @@ def get_prison_date():
             print(mapID[changeValue]['Cases'])
     else:
         mapID = data
-    
+
     #mapID = data.Facility_ID.distinct()
-    
+
     doOnce = doOnce + 1
-    
+
 
     '''
     for facility in facilities.items():
