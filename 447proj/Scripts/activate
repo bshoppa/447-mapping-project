@@ -37,7 +37,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="C:\Users\iruka\Desktop\447proj"
+VIRTUAL_ENV="C:\Users\Bailey Shoppa\Desktop\shared with vm\447-mapping-project\447proj"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"

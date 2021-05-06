@@ -11,6 +11,7 @@ import string
 app = Flask(__name__)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 class Place(db.Model):
@@ -23,18 +24,18 @@ class Place(db.Model):
     Date = db.Column(db.String(100), nullable = False)
     County = db.Column(db.String(100), nullable = False, default = "Fluffy- if ur seeing this something wrong bro")
 
-    #id_num = db.Column(db.Integer, primary_key = True)
-    #Latitude = db.Column(db.Float, nullable = False, default = 0.0)
-    #Longitude = db.Column(db.Float, nullable = False, default = 0.0)
-    #name = db.Column(db.String(100), nullable = False, unique = True)
-    #Cases = db.Column(db.String(100), nullable = False)
-    #Date = db.Column(db.String(100), nullable = False)
-    #County = db.Column(db.String(100), nullable = False, default = "Fluffy- if ur seeing this something wrong bro")
-
-
 
     def __repo__(self):
         return f"User('{self.id_num}', '{self.Latitude}', '{self.Longitude}')"
+
+class County(db.Model):
+    Cases = db.Column(db.String(100), nullable = False)
+    Date = db.Column(db.String(100), nullable = False)
+    id_num = db.Column(db.Integer, primary_key = True)
+
+    def __repo__(self):
+        return f"User('{self.id_num}', '{self.Latitude}', '{self.Longitude}')"
+
 
 db.drop_all() # drops everything just in case
 db.create_all() # creates everything new
@@ -44,12 +45,11 @@ tempCount = 0
 # initialize data
 notes = []
 
-facility_id_set = set()
-# contains each id once.
-
 facilities = {}
 
 counties = {}
+
+mapID = []
 
 for filename in os.listdir('countypolygons'):
     county_name = filename[:-9]
@@ -60,6 +60,8 @@ for filename in os.listdir('countypolygons'):
 
 counter = 0
 # load latest data
+
+print("loading facilities")
 with open("CA-historical-data.csv") as csvfile:
     reader = csv.DictReader(csvfile, skipinitialspace=True)
     for row in reader:
@@ -73,7 +75,6 @@ with open("CA-historical-data.csv") as csvfile:
                 'Facility_ID' : row['Facility.ID']
             }
         counter = counter + 1
-        facility_id_set.add(row['Facility.ID'])
         '''
         if facilities.get(row['Facility.ID']) is None:
             # Initialize
@@ -102,6 +103,25 @@ with open("CA-historical-data.csv") as csvfile:
             # Insert cases
             #facility = facilities[row['Facility.ID']]
             #facility['CaseDates'].append({'Cases': row['Residents.Confirmed'], 'Date': row['Date']})
+
+print("loading counties")
+with open("us-counties.csv") as csvfile:
+    reader = csv.DictReader(csvfile, skipinitialspace=True)
+    counter = 0
+    for row in reader:
+        # check if the county specified is in California. (mapping the rest of the us is unnecessary)
+        if counties.get(row['county']):
+            # if it is, add it to the database.
+
+            counties[row['county']][1] = row['cases']
+            newData = County(
+                id_num = counter,
+                Cases = row['cases'],
+                Date = row['date'],
+            )
+            db.session.add(newData)
+            counter += 1
+
 print("The number of entries in dict is : " , len(facilities))
 print("The number of keys in dict is : " , len(facilities.keys()))
 print("The number of values in dict is : " , len(facilities.values()))
@@ -122,7 +142,6 @@ for all in facilities:
     )
     tempCount = tempCount + 1
     db.session.add(newData)
-
 
 db.session.commit()
 
@@ -149,20 +168,60 @@ db.session.commit()
 parameters: date (optional)
 output: a facilities dictionary, automatically converted to a json for the map to render
 '''
+doOnce = 0
 @app.route('/data', methods=['POST'])
 def get_prison_date():
     date = request.args.get("date")
     print("date input: %s" % date)
+    global doOnce
+    global mapID
+
+    data = {}
+    #data = Place.query.with_entities(Place.id_num).distinct()
+    #data = db.query(Place.id_num.distinct())
     if date is None:
-        return facilities
-    data = []
+        date = "2222-02-22"
+    subquery = Place.query.filter(Place.Date <= date).order_by(Place.Date.desc())
+    query_value = Place.query.select_entity_from(subquery).group_by(Place.Facility_ID)
+    print(query_value)
+    for PlaceObject in query_value.all():
+        #facility_id = facility_id[0]
+
+        #PlaceObject = query_value.first() # get the first PlaceObject of the Facility ID before the date.
+        myDict = {
+            'Facility_ID' : PlaceObject.Facility_ID,
+            'Latitude' : PlaceObject.Latitude,
+            'Longitude' : PlaceObject.Longitude,
+            'name' : PlaceObject.name,
+            'Cases' : PlaceObject.Cases,
+            'Date' : PlaceObject.Date,
+            'County' : PlaceObject.County
+        }
+        data[PlaceObject.Facility_ID] = myDict
+    
+    if query_value.count() == 0:
+        print("THERE ARE NO DATA ON THIS MAKE EVERYTHING ZERO")
+        for changeValue in mapID:
+            #changeValue['Cases'] = "0"
+            mapID[changeValue]['Cases'] = 0
+            print(mapID[changeValue]['Cases'])
+    else:
+        mapID = data
+    
+    #mapID = data.Facility_ID.distinct()
+    
+    doOnce = doOnce + 1
+    
+
+    '''
     for facility in facilities.items():
         if date is not None:
-            if facility[1].get("Date") <= date:
-                data.append(facility)
+            #if facility[1].get("Date") <= date:
+            #    data.append(facility)
         else:
             data.append(facility)
-    return data
+            '''
+    return {'List' : mapID}
 
 '''
 /research.html
