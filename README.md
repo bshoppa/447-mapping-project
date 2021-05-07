@@ -25,3 +25,16 @@ go to
 localhost:5000
 
 or 127.0.0.1:5000
+
+to start server unit testing, run this command:
+
+```
+source webenv/bin/activate (linux only)
+447proj\scripts\activate (windows only)
+
+python3 servertest.py (optional parameters)
+```
+
+list of optional parameters for servertest:
+
+- (there are none)
