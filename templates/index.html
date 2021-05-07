@@ -9,7 +9,7 @@
 	<link rel="shortcut icon" type="image/x-icon" href="docs/images/favicon.ico" />
 		<!-- Leaflet CSS File-->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin=""/>
-	<link href="public/style/styles.css" rel="stylesheet">
+	<link href="public/style/styles.css?version=3" rel="stylesheet">
 		<!-- Leaflet JavaScript file -->
 	<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
 
@@ -17,10 +17,13 @@
 <body>
 	<div class="map">
 		<!-- div element with a certain id where you want your map to be -->
-		<div id="mapid" style="width: 800px; height: 700px;"></div>
+		<div id="mapid" style="height: 700px;"></div>
 	</div>
 <h1>{{ headline }}</h1>
 
+<p>
+	<input type="date" class="mapdate">
+</p>
 <div class="dateSel">
     <form action="{{ url_for('index') }}" method="post">
         <label for="Covid Search Date">Select a date to search from<br></label>

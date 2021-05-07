@@ -2,7 +2,9 @@
 
 .map {
     border: 5px outset lightcoral;
-    position: fixed;
+    /* //position: fixed;//
+    this doesn't work.
+    - xe */
     left: 26%;
 
 }
