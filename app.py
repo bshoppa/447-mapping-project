@@ -129,13 +129,13 @@ for all in facilities:
     facility = facilities[all]
     #print(all, facility)
     newData = Place(id_num = all,
-    Facility_ID = facility['Facility_ID'],
-    Longitude = facility['Longitude'],
-    Latitude = facility['Latitude'],
-    name = facility['Name'],
-    Cases = facility['Cases'],
-    Date = facility['Date'],
-    County = facility['County']
+        Facility_ID = facility['Facility_ID'],
+        Longitude = facility['Longitude'],
+        Latitude = facility['Latitude'],
+        name = facility['Name'],
+        Cases = facility['Cases'],
+        Date = facility['Date'],
+        County = facility['County']
     )
     tempCount = tempCount + 1
     db.session.add(newData)

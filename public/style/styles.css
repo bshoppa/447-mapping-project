@@ -2,7 +2,9 @@
 
 .map {
     border: 5px outset lightcoral;
-    position: fixed;
+    /* //position: fixed;//
+    this doesn't work.
+    - xe */
     left: 26%;
 
 }
@@ -34,6 +36,6 @@ li{
 }
 
 body {
-    background: rgb(194, 240, 240);
+    background: rgb(200, 240, 240);
     text-align: center;
 }
