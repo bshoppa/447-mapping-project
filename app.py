@@ -25,10 +25,15 @@ class Place(db.Model):
     Date = db.Column(db.String(100), nullable = False, primary_key = True)
     County = db.Column(db.String(100), nullable = False, default = "Fluffy- if ur seeing this something wrong bro")
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> main
 
     def __repo__(self):
         return f"User('{self.id_num}', '{self.Latitude}', '{self.Longitude}')"
 
+<<<<<<< HEAD
 class County(db.Model):
     Cases = db.Column(db.String(100), nullable = False)
     Date = db.Column(db.String(100), nullable = False)
@@ -43,6 +48,12 @@ db.drop_all() # drops everything just in case
 db.create_all() # creates everything new
 
 tempCount = 0
+=======
+db.drop_all() # drops everything just in case
+db.create_all() # creates everything new
+
+tempCount = 0;
+>>>>>>> main
 
 # initialize data
 notes = []
@@ -66,6 +77,7 @@ print("loading facilities")
 with open("CA-historical-data.csv") as csvfile:
     reader = csv.DictReader(csvfile, skipinitialspace=True)
     for row in reader:
+<<<<<<< HEAD
 
         #print('facility', row['Date'])
         facilities[counter] = {
@@ -148,6 +160,62 @@ db.session.commit()
     #if counties.get(facility['County']):
         #counties[facility['County']][1] += int(facility['Cases'])
     #else:
+=======
+        newData = Place(id_num = tempCount,
+        Longitude = row['Longitude'],
+        Latitude = row['Latitude'],
+        name = row['Name'],
+        Cases = row['Residents.Confirmed'],
+        Date = row['Date'],
+        County = row['County'],
+        Facility_ID = row['Facility.ID']
+        )
+        tempCount = tempCount + 1
+        db.session.add(newData)
+
+db.session.commit()
+
+
+        #Facility_ID = row['Facility_ID']
+        #facilities[row['Facility.ID']] = {
+            #'Latitude': row['Latitude'],
+            #'Longitude': row['Longitude'],
+            #'Name': row['Name'],
+            #'Cases': row['Residents.Confirmed'],
+            #'Date': row['Date'],
+            #'County': row['County']
+
+
+
+'''for all in facilities:
+    facility = facilities[all]
+    newData = Place(id_num = tempCount,
+    Longitude = facility['Longitude'],
+    Latitude = facility['Latitude'],
+    name = facility['Name'],
+    Cases = facility['Cases'],
+    Date = facility['Date'],
+    County = facility['County'],
+    Facility_ID = all
+
+    #Longitude = facilities[row['Facility.ID']],
+    #Latitude = facilities[row['Facility.ID']].Latitude,
+    #name = facilities[row['Facility.ID']].Name,
+    #Cases = facilities[row['Facility.ID']].Cases,
+    #Date = facilities[row['Facility.ID']].Date,
+    #County = facilities[row['Facility.ID']].County)
+    )
+    tempCount = tempCount + 1
+    db.session.add(newData)
+    db.session.commit()
+
+# locate the counties associated with facilities. add latest case data to the counties.
+for key in facilities:
+    facility = facilities[key]
+    if counties.get(facility['County']):
+        counties[facility['County']][1] += int(facility['Cases'])
+    else:
+>>>>>>> main
         #print(facility['County'], "not found")
     #    county_name = string.capwords(facility['County'].lower())
     #    try:
@@ -159,6 +227,8 @@ db.session.commit()
     #        print("\033[33mwarning: key", key, "does not have a case value\033[0m")
 
 # print([key for key in counties])
+
+'''
 
 '''
 /data
@@ -232,7 +302,11 @@ def get_research_page():
     #data = []
     #data = Place.query.filter_by(Date = date).all()
     #data = Place.query.order_by(Place.Date).all()
+<<<<<<< HEAD
     data = Place.query.filter(Place.Date <= date).all()
+=======
+    data = Place.query.filter(Place.Date < date).all()
+>>>>>>> main
     print("got from database  : " , data)
     '''
     for facility in facilities.items():
@@ -310,6 +384,35 @@ def index():
         date = request.form.get("date")
         print(date)
         return redirect('/research.html?date=%s' % date)
+<<<<<<< HEAD
+=======
+"""         curyear = datetime.now().year
+        day = request.form.get("day")
+        month = request.form.get('month')
+        year = request.form.get('year')
+
+        # error checking for date input
+        if(int(day) > 31 or int(day) < 0):
+            print("We day bad")
+            return redirect('/')
+        elif(int(year) > curyear):
+            print("We year bad")
+            return redirect('/')
+        elif(int(month) > 12 or int(month) < 0):
+            print("We month bad")
+            return redirect('/')
+
+        if(len(day) < 2):
+            day = '0' + day
+        elif(len(day) > 2):
+            day = day[-2:]
+        elif(len(month) > 2):
+            month = month[-2:]
+        elif(len(month) < 2):
+            month = '0' + month
+
+        date = year + "-" + month + "-" + day """
+>>>>>>> main
 
 
 # Huge Security Violation
