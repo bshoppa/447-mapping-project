@@ -141,3 +141,46 @@ function load_button_pressed(){
 }
 
 selectElement.addEventListener('change', load_button_pressed);
+
+function SQLDateToDate(n){
+	var re = /(.+)\-(.+)\-(.+)/;
+	var info = re.exec(n);
+	console.log(info);
+	var d = new Date(parseInt(info[1]), parseInt(info[2]) - 1, parseInt(info[3]), 0, 0, 0, 0);
+	return d
+}
+
+function parseDate(d) {
+	var Year = d.getUTCFullYear();
+	Year = String(Year).padStart(4, '0');
+	var Month = (d.getUTCMonth() + 1);
+	Month = String(Month).padStart(2, '0');
+	var Day = d.getUTCDate();
+	Day = String(Day).padStart(2, '0');
+	var n = Year + "-" + Month + "-" + Day;
+	console.log(n);
+	return n
+}
+
+var sliderStart = "2020-03-01"
+var sliderEnd = "2021-05-10"
+
+var scale = 100;
+function slider(n) {
+	var start = SQLDateToDate(sliderStart).getTime(); // time in milliseconds
+	var end = SQLDateToDate(sliderEnd).getTime();
+
+	var time = (n * (end - start)) / scale; // time in milliseconds
+	var d = new Date();
+	d.setTime(time + start)
+	return parseDate(d);
+}
+
+const selectElement2 = document.querySelector('.slider');
+function sliderChanged(){
+	console.log("Slider moved.");
+	date = slider(selectElement2.value);
+	load_on_date(date);
+}
+
+selectElement2.addEventListener('change', sliderChanged);
