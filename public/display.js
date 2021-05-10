@@ -81,6 +81,9 @@ function DateDifference(inputDate){
 
 var countyMarkers = {};
 function renderCounties(data) {
+	for(var key in countyMarkers){
+		countyMarkers[key].setStyle({fillColor: getColor(0)});
+	}
 	for(var key in data){
 		if(countyMarkers[key] == null){
 			geojsonFile = data[key][0];
