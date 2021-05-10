@@ -217,6 +217,7 @@ const selectElement2 = document.querySelector('.slider');
 function sliderChanged(){
 	console.log("Slider moved.");
 	date = slider(selectElement2.value);
+	selectElement.value = date;
 	load_on_date(date);
 }
 
