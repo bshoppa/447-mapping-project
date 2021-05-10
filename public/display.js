@@ -16,26 +16,51 @@ function onMapClick(e) {
 mymap.on('click', onMapClick);
 
 /** Color Settings that will coordinate with Covid Cases Density **/
-function getColor(d) {
-return d > 2000 ? '#800026' :
-	   d > 1000  ? '#BD0026' :
-	   d > 500  ? '#E31A1C' :
-	   d > 200  ? '#FC4E2A' :
-	   d > 100   ? '#FD8D3C' :
-	   d > 50   ? '#FEB24C' :
-	   d > 25   ? '#FED976' :
-				  '#FFEDA0';
+function lerpColor(a, b, amount) {
+
+    var ah = parseInt(a.replace(/#/g, ''), 16),
+        ar = ah >> 16, ag = ah >> 8 & 0xff, ab = ah & 0xff,
+        bh = parseInt(b.replace(/#/g, ''), 16),
+        br = bh >> 16, bg = bh >> 8 & 0xff, bb = bh & 0xff,
+        rr = ar + amount * (br - ar),
+        rg = ag + amount * (bg - ag),
+        rb = ab + amount * (bb - ab);
+
+    return '#' + ((1 << 24) + (rr << 16) + (rg << 8) + rb | 0).toString(16).slice(1);
+}
+
+var dateColoringEnabled = true;
+
+function getColor(d, dateDifference) {
+	console.log(dateDifference);
+	var Value = d > 2000 ? '#800026' :
+		   d > 1000  ? '#BD0026' :
+		   d > 500  ? '#E31A1C' :
+		   d > 200  ? '#FC4E2A' :
+		   d > 100   ? '#FD8D3C' :
+		   d > 50   ? '#FEB24C' :
+		   d > 25   ? '#FED976' :
+					  '#FFEDA0';
+	if(dateDifference != null && dateColoringEnabled){
+		if(dateDifference < 15) {
+			Value = lerpColor(Value, "#aaaaaa", dateDifference / 15);
+		} else {
+			Value = "#aaaaaa";
+		}
+	}
+	return Value
 }
 
 /** styling function for our GeoJSON layer so that its fillColor depends on our covid cases database **/
 
 counties_cases = {};
+counties_dates = {}
 
 function style(feature) {
 	console.log(feature);
 	console.log(feature.properties.name);
 return {
-	fillColor: getColor(counties_cases[feature.properties.name]),
+	fillColor: getColor(counties_cases[feature.properties.name], DateDifference(counties_dates[feature.properties.name])),
 	weight: 2,
 	opacity: 1,
 	color: 'white',
@@ -45,6 +70,14 @@ return {
 }
 
 /** L.geoJson(statesData, {style: style}).addTo(map); **/
+var current_map_date;
+
+function DateDifference(inputDate){
+	var start = SQLDateToDate(inputDate).getTime(); // time in milliseconds
+	var thisTime = SQLDateToDate(current_map_date).getTime();
+
+	return (thisTime - start) / (1000 * 24 * 60 * 60);
+}
 
 var countyMarkers = {};
 function renderCounties(data) {
@@ -55,13 +88,14 @@ function renderCounties(data) {
 			console.log(geojsonFile.properties);
 			// geojsonFile.properties.density = data[key][1]
 			counties_cases[key] = data[key][1].Cases;
+			counties_dates[key] = data[key][1].Date;
 			console.log(data[key][1]);
 			var mypoly = L.geoJSON(geojsonFile, {style: style}).addTo(mymap);
 			countyMarkers[key] = mypoly;
 		} else {
 			counties_cases[key] = data[key][1].Cases;
-			console.log(data[key][1]);
-			countyMarkers[key].setStyle({fillColor: getColor(counties_cases[key])});
+			counties_dates[key] = data[key][1].Date;
+			countyMarkers[key].setStyle({fillColor: getColor(data[key][1].Cases, DateDifference(data[key][1].Date))});
 		}
 	}
 }
@@ -80,7 +114,7 @@ function renderFacilities(data) {
 				if(lva.Cases != "NA"){
 					facilityCases[key] = lva.Cases;
 					mycircle = L.circle([Number(lva.Latitude), Number(lva.Longitude)], {
-						color: getColor(lva.Cases),
+						color: getColor(lva.Cases, DateDifference(lva.Date)),
 						fillOpacity: 0.5,
 						radius: 5000
 					}).addTo(mymap).bindPopup(Number(facilityCases[key]).toString() + ' Cases');
@@ -97,7 +131,7 @@ function renderFacilities(data) {
 		} else {
 			var lva = data[key]
 			if(lva.Latitude != "NA" && Number(lva.Cases) > 0){
-				facilityMarkers[key].setStyle({color: getColor(lva.Cases)});
+				facilityMarkers[key].setStyle({color: getColor(lva.Cases, DateDifference(lva.Date))});
 				facilityCases[key] = lva.Cases;
 				facilityMarkers[key].setPopupContent(Number(facilityCases[key]).toString() + ' Cases');
 				console.log(lva.Cases)
@@ -114,6 +148,9 @@ function load_on_date(date){
 	var date_fragment = '';
 	if(date){
 		date_fragment = '?date=' + date
+		current_map_date = date;
+	} else {
+		current_map_date = parseDate(new Date());
 	}
 	fetch('/counties' + date_fragment,
 	{"method": "POST", 'headers': {'Accept': 'application/json', 'Content-Type': 'application/json'}, "body" : JSON.stringify({})}
@@ -137,7 +174,7 @@ load_on_date(); // loads with the default date - i.e. today's date
 const selectElement = document.querySelector('.mapdate');
 function load_button_pressed(){
 	console.log("Load button pressed.");
-	load_on_date(selectElement.value)
+	load_on_date(selectElement.value);
 }
 
 selectElement.addEventListener('change', load_button_pressed);
@@ -147,7 +184,7 @@ function SQLDateToDate(n){
 	var info = re.exec(n);
 	console.log(info);
 	var d = new Date(parseInt(info[1]), parseInt(info[2]) - 1, parseInt(info[3]), 0, 0, 0, 0);
-	return d
+	return d;
 }
 
 function parseDate(d) {
@@ -159,7 +196,7 @@ function parseDate(d) {
 	Day = String(Day).padStart(2, '0');
 	var n = Year + "-" + Month + "-" + Day;
 	console.log(n);
-	return n
+	return n;
 }
 
 var sliderStart = "2020-03-01"
