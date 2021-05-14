@@ -182,7 +182,7 @@ function load_button_pressed(){
 
 selectElement.addEventListener('change', load_button_pressed);
 
-function SQLDateToDate(n){
+function SQLDateToDate(n) {
 	var re = /(.+)\-(.+)\-(.+)/;
 	var info = re.exec(n);
 	console.log(info);
