@@ -29,10 +29,15 @@ function lerpColor(a, b, amount) {
     return '#' + ((1 << 24) + (rr << 16) + (rg << 8) + rb | 0).toString(16).slice(1);
 }
 
-var dateColoringEnabled = true;
+var dateColoringEnabled = false;
+var caseDensity = false;
 
-function getColor(d, dateDifference) {
-	console.log(dateDifference);
+function getColor(d, dateDifference, totalPopulation) {
+
+	if(totalPopulation != null){
+		d = 2500 * d / totalPopulation;
+	}
+
 	var Value = d > 2000 ? '#800026' :
 		   d > 1000  ? '#BD0026' :
 		   d > 500  ? '#E31A1C' :
@@ -57,8 +62,6 @@ counties_cases = {};
 counties_dates = {}
 
 function style(feature) {
-	console.log(feature);
-	console.log(feature.properties.name);
 return {
 	fillColor: getColor(counties_cases[feature.properties.name], DateDifference(counties_dates[feature.properties.name])),
 	weight: 2,
@@ -87,12 +90,9 @@ function renderCounties(data) {
 	for(var key in data){
 		if(countyMarkers[key] == null){
 			geojsonFile = data[key][0];
-			console.log(geojsonFile);
-			console.log(geojsonFile.properties);
 			// geojsonFile.properties.density = data[key][1]
 			counties_cases[key] = data[key][1].Cases;
 			counties_dates[key] = data[key][1].Date;
-			console.log(data[key][1]);
 			var mypoly = L.geoJSON(geojsonFile, {style: style}).addTo(mymap);
 			countyMarkers[key] = mypoly;
 		} else {
@@ -115,12 +115,22 @@ function renderFacilities(data) {
 			if(lva.Latitude != "NA" && Number(lva.Cases) > 0){
 				var mycircle;
 				if(lva.Cases != "NA"){
+					if(caseDensity){
+						mycircle = L.circle([Number(lva.Latitude), Number(lva.Longitude)], {
+							color: getColor(lva.Cases, DateDifference(lva.Date), lva.Population),
+							fillOpacity: 0.5,
+							radius: 5000
+						}).addTo(mymap)
+					} else {
+						mycircle = L.circle([Number(lva.Latitude), Number(lva.Longitude)], {
+							color: getColor(lva.Cases, DateDifference(lva.Date)),
+							fillOpacity: 0.5,
+							radius: 5000
+						}).addTo(mymap)
+					}
+					mycircle.bindPopup(Number(facilityCases[key]).toString() + ' Cases ' + lva.Population.toString() + ' population');
 					facilityCases[key] = lva.Cases;
-					mycircle = L.circle([Number(lva.Latitude), Number(lva.Longitude)], {
-						color: getColor(lva.Cases, DateDifference(lva.Date)),
-						fillOpacity: 0.5,
-						radius: 5000
-					}).addTo(mymap).bindPopup(Number(facilityCases[key]).toString() + ' Cases');
+
 				} else {
 					mycircle = L.circle([Number(lva.Latitude), Number(lva.Longitude)], {
 						color: '#0033FF',
@@ -128,17 +138,18 @@ function renderFacilities(data) {
 						radius: 5000
 					}).addTo(mymap).bindPopup(Number(facilityCases[key]).toString() + ' Cases');
 				}
-				console.log("Created", mycircle);
 				facilityMarkers[key] = mycircle;
 			}
 		} else {
 			var lva = data[key]
 			if(lva.Latitude != "NA" && Number(lva.Cases) > 0){
-				facilityMarkers[key].setStyle({color: getColor(lva.Cases, DateDifference(lva.Date))});
+				if(caseDensity){
+					facilityMarkers[key].setStyle({color: getColor(lva.Cases, DateDifference(lva.Date), lva.Population)});
+				} else {
+					facilityMarkers[key].setStyle({color: getColor(lva.Cases, DateDifference(lva.Date))});
+				}
 				facilityCases[key] = lva.Cases;
-				facilityMarkers[key].setPopupContent(Number(facilityCases[key]).toString() + ' Cases');
-				console.log(lva.Cases)
-				console.log(key);
+				facilityMarkers[key].setPopupContent(Number(facilityCases[key]).toString() + ' Cases ' + lva.Population.toString() + ' population');
 			} else {
 				facilityCases[key] = 0;
 				facilityMarkers[key].setPopupContent(Number(facilityCases[key]).toString() + ' Cases');
@@ -166,8 +177,6 @@ function load_on_date(date){
 		{
 			console.log("Received data.");
 			renderFacilities(data.List);
-			console.log("Received data.");
-			console.log(data);
 		}
 	);
 }
@@ -175,39 +184,15 @@ function load_on_date(date){
 load_on_date(); // loads with the default date - i.e. today's date
 
 
-// Enable and disable the greyscale filter for the map
 function checkboxGreyer() {
-	// Get the checkbox
-	var checkBox = document.getElementById("myCheck");
-	// Get the output text
-	var prisons = document.getElementById("myRange");
-	var county = document.getElementById("text");
-
-  
-	// If the checkbox is checked, display the output text
-	if (checkBox.checked == true){
-		console.log("Greyscale checkbox is checked");
-		dateColoringEnabled = false;
-	} else {
-		dateColoringEnabled = true;	
-		console.log("Greyscale checkbox is unchecked");	
-	}
-	load_button_pressed();
+	dateColoringEnabled = document.getElementById("dateColoringCheckbox").checked;
+	load_on_date(current_map_date);
 }
 
-// This is to do somethign thin the future
+// This is to switch between case # and case density.
 function checkboxDensity(){
-	var caseDensity = 0;
-	var checkBox = document.getElementById("densityCB");
-
-	if(checkBox.checked == true){
-		caseDensity == false; //HAHAHAAA
-		console.log("Case density checkbox was checked");	
-	}else{
-		caseDensity == true;  //HAHAHAHA
-		console.log("Case density checkbox was unchecked");	
-	}
-	load_button_pressed();
+	caseDensity = document.getElementById("densityColoringCheckbox").checked;
+	load_on_date(current_map_date);
 }
 
 const selectElement = document.querySelector('.mapdate');
@@ -234,7 +219,6 @@ function parseDate(d) {
 	var Day = d.getUTCDate();
 	Day = String(Day).padStart(2, '0');
 	var n = Year + "-" + Month + "-" + Day;
-	console.log(n);
 	return n;
 }
 

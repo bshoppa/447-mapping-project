@@ -24,6 +24,7 @@ class Place(db.Model):
     Cases = db.Column(db.String(100), nullable = False)
     Date = db.Column(db.String(100), nullable = False, primary_key = True)
     County = db.Column(db.String(100), nullable = False, default = "Fluffy- if ur seeing this something wrong bro")
+    Population = db.Column(db.String(100), nullable = False)
 
 
     def __repo__(self):
@@ -75,7 +76,8 @@ with open("CA-historical-data.csv") as csvfile:
                 'County': row['County'],
                 'Cases' : row['Residents.Confirmed'],
                 'Date': row['Date'],
-                'Facility_ID' : row['Facility.ID']
+                'Facility_ID' : row['Facility.ID'],
+                'Population' : row['Population.Feb20']
             }
         counter = counter + 1
         '''
@@ -135,7 +137,8 @@ for all in facilities:
         name = facility['Name'],
         Cases = facility['Cases'],
         Date = facility['Date'],
-        County = facility['County']
+        County = facility['County'],
+        Population = facility['Population']
     )
     tempCount = tempCount + 1
     db.session.add(newData)
@@ -192,7 +195,8 @@ def get_prison_date():
             'name' : PlaceObject.name,
             'Cases' : PlaceObject.Cases,
             'Date' : PlaceObject.Date,
-            'County' : PlaceObject.County
+            'County' : PlaceObject.County,
+            'Population' : PlaceObject.Population
         }
         data[PlaceObject.Facility_ID] = myDict
 
