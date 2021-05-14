@@ -174,6 +174,42 @@ function load_on_date(date){
 
 load_on_date(); // loads with the default date - i.e. today's date
 
+
+// Enable and disable the greyscale filter for the map
+function checkboxGreyer() {
+	// Get the checkbox
+	var checkBox = document.getElementById("myCheck");
+	// Get the output text
+	var prisons = document.getElementById("myRange");
+	var county = document.getElementById("text");
+
+  
+	// If the checkbox is checked, display the output text
+	if (checkBox.checked == true){
+		console.log("Greyscale checkbox is checked");
+		dateColoringEnabled = false;
+	} else {
+		dateColoringEnabled = true;	
+		console.log("Greyscale checkbox is unchecked");	
+	}
+	load_button_pressed();
+}
+
+// This is to do somethign thin the future
+function checkboxDensity(){
+	var caseDensity = 0;
+	var checkBox = document.getElementById("densityCB");
+
+	if(checkBox.checked == true){
+		caseDensity == false; //HAHAHAAA
+		console.log("Case density checkbox was checked");	
+	}else{
+		caseDensity == true;  //HAHAHAHA
+		console.log("Case density checkbox was unchecked");	
+	}
+	load_button_pressed();
+}
+
 const selectElement = document.querySelector('.mapdate');
 function load_button_pressed(){
 	console.log("Load button pressed.");
@@ -220,7 +256,6 @@ const selectElement2 = document.querySelector('.slider');
 function sliderChanged(){
 	console.log("Slider moved.");
 	date = slider(selectElement2.value);
-	selectElement.value = date;
 	load_on_date(date);
 }
 

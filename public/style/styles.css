@@ -9,6 +9,21 @@
 
 }
 
+.slider{
+    position: fixed;
+    color: white;
+    bottom: 10%;
+    left: 47%;
+    width: 30%;
+}
+
+.testtext{
+    position: fixed;
+    bottom: 1%;
+    color: black;
+    left: 1%;
+}
+
 .dateSel{
     position: fixed;
     bottom: 10%;
@@ -16,6 +31,18 @@
     text-align: center;
     border: 5px outset red;
     background: lightyellow;
+}
+
+.sadnesscheckbox{
+    position: absolute;
+    left: 10%;
+    bottom: 3%;
+}
+
+.datacheckbox{
+    position: absolute;
+    right: 10%;
+    bottom: 3%;
 }
 
 h1 {

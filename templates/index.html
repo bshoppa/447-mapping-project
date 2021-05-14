@@ -21,13 +21,18 @@
 	</div>
 <h1>{{ headline }}</h1>
 
-<div class="slidecontainer">
-  <input type="range" min="1" max="100" value="50" class="slider" id="myRange">
+<div class="sadnesscheckbox">
+	<input type="checkbox" id="sadCheck" onclick="checkboxGreyer()">
 </div>
 
-<p>
-	<input type="date" class="mapdate">
-</p>
+<input type="checkbox" class="datacheckbox" id="densityCB" onclick="checkboxDensity()">
+
+
+<div class="slidecontainer">
+  <input type="range" min="1" max="100" value="50" class="slider" id="myRange" style="display: block">
+</div>
+
+<p><input type="date" class="mapdate"></p>
 
 <div class="dateSel">
     <form action="{{ url_for('index') }}" method="post">
